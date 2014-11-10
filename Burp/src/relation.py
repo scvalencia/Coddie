@@ -92,6 +92,30 @@ class Relation(object):
         else:
             self.error_queue.append('Attribute not in table, unable to perform projection.')
 
+    def selection(self, arguments, rel_ops, values, connectors):
+        if len(arguments) == len(rel_ops) == len(values):
+            if len(arguments) - 1 == len(connectors): 
+                types = dict(zip(self.attributes, self.types))
+                args_types = [types[_] for _ in arguments]
+                positions = map(lambda x : self.attributes.index(x) , arguments)
+                # Check types and so on, if argument
+        else:
+            self.error_queue.append('Malformed predicate')
+
+    def parse_relationl_operation(self, rel_op):
+        if rel_op == '=':
+            return lambda a, b : a == b
+        elif rel_op == '<>':
+            return lambda a, b : a != b
+        elif rel_op == '<':
+            return lambda a, b : a < b
+        elif rel_op == '>':
+            return lambda a, b : a > b
+        elif rel_op == '<=':
+            return lambda a, b : a <= b
+        elif rel_op == '>=':
+            return lambda a, b : a >= b
+
 
 
     def __str__(self):
@@ -105,7 +129,7 @@ class Relation(object):
 
         return tabulate.tabulate(table, headers, tablefmt="grid")
 
-
+'''
 attributes = ['ID', 'NAME', 'IS_COOL']
 types = [dataTypes.INT, dataTypes.STRING, dataTypes.BOOL]
 key = 'ID'
@@ -140,3 +164,14 @@ r.delete('19')
 for i in r.error_queue:
     print i
 print r
+'''
+
+attributes = ['ID', 'NAME', 'IS_COOL']
+types = [dataTypes.INT, dataTypes.STRING, dataTypes.BOOL]
+tuple_1 = (dataTypes.INT(1), dataTypes.STRING('Natalia'), dataTypes.BOOL('FALSE'))
+tuple_2 = (dataTypes.INT(2), dataTypes.STRING('Carlos'), dataTypes.BOOL('TRUE'))
+key = 'ID'
+rel = Relation('Dudes', types, attributes, key)
+rel.insert(tuple_1)
+rel.insert(tuple_2)
+rel.selection(['NAME', 'ID'], ['=', '<>'], ['Sebastian', 13], ['AND'])
