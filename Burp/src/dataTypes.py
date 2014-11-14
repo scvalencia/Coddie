@@ -16,7 +16,7 @@ class INT:
     def __init__(self, value):
         value = str(value)
         if value != '' and value.isdigit():
-            self.data = str(value)
+            self.data = int(value)
         else:
             self.data = ''
 
