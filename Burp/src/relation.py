@@ -1,3 +1,9 @@
+''' relation.py
+
+This module defines the class of a relation, the main structure in
+BURP, a relation is .... 
+'''
+
 import tabulate
 import dataTypes
 
@@ -32,7 +38,7 @@ class Relation(object):
                         if isinstance(obj, type_obj):
                             pass
                         else:
-                            self.error_queue.append('Type constraint violated inserting ' + str(map(str, register)) + '. Expected type is: ' + str(type_obj))
+                            self.error_queue.append('Type constraint violated inserting ' + obj + '. Expected type is: ' + str(type_obj) + '. Received type is: ' + obj.__class__.__name__)
                             flag = False
                             break
                     if flag:
@@ -76,6 +82,7 @@ class Relation(object):
             index_object = tuples.index(obj)
             self.used_keys.pop(index_object)
             self.tuples.pop(index_object)
+        return ans
 
     def project(self, attributes):
         length = len(filter(lambda x : x in self.attributes, attributes))
@@ -211,6 +218,20 @@ class Relation(object):
         ans = [(self.attributes.index(_), values.index(_)) for _ in common]
         return ans
 
+    def rename(self, former, current):
+        correct_values = [(_ in self.attributes) for _ in former]
+        if correct_values.count(True) == len(former):
+            i = 0
+            for itm in former:
+                index = self.attributes.index(itm)
+                self.attributes[index] = current[i]
+                i += 1
+        else:
+            self.error_queue.append('Wrong rename parameters')
+
+    def get_cardinality(self):
+        return len(self.tuples)
+
     def __str__(self):
         headers = self.attributes
         table = []
@@ -221,6 +242,8 @@ class Relation(object):
             table.append(new_tpl)
 
         return tabulate.tabulate(table, headers, tablefmt="grid")
+
+
 
 '''
 attributes = ['ID', 'NAME', 'IS_COOL']
@@ -257,7 +280,7 @@ r.delete('19')
 for i in r.error_queue:
     print i
 print r
-'''
+
 
 attributes = ['NAME', 'AGE', 'WEIGHT']
 types = [dataTypes.STRING, dataTypes.INT, dataTypes.INT]
@@ -273,5 +296,9 @@ rel.insert(tuple_3)
 rel.insert(tuple_4)
 rel.insert(tuple_5)
 print rel
-print rel.selection(['AGE', 'WEIGHT'], ['=', '='], ['WEIGHT', 'ANS'], ['OR'])
+print rel.selection(['AGE', 'WEIGHT'], ['=', '='], ['WEIGHT', 54], ['OR'])
+rel.rename(['NAME'], ['YOUR_NAME'])
+print rel
+print rel.project(['AGE'])
+'''
 
