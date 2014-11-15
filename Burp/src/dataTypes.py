@@ -1,4 +1,33 @@
+''' dataTypes.py
+
+This module defines the native and unique types available
+for columns, those types are BOOL which can be seen as an
+isomorphism with Z_{2}, INT which defines the set of integers,
+REAL is the set of real numbers, with high precision arithmetic,
+STRING represents a set of values of character strings, CHAR is 
+a primitive type for STRING. DATE is the set of dates of the 
+form yyyy-mm-dd hh:mm:ss.
+
+Simple types are created by indicating the type among the valid
+types and a terminal value od the data, if the type transmission
+succeed, then it handles an internal representation, otherwise,
+the data is 'NULL' and the conversion failed. Representation and
+operations depends on the machine.
+
+The general scheme of a type in BURP is to check if the argument
+is valid (is in the domain of the type), if it is, the string
+representation of it is the bare value, otherwise it is NULL,
+semantics indicates that NULL is an unrecognized value in the 
+type.
+
+Types = [BOOL, INT, REAL, STRING, CHAR, DATE]
+'''
+
 class BOOL:
+    ''' Represents the Boolean datatype
+    Args:
+        value (str): Normal form of a value of the type
+    '''
     def __init__(self, value):
         value = str(value)
         if value != '' and value in ['TRUE', 'FALSE']:
@@ -13,6 +42,10 @@ class BOOL:
             return 'NULL'
 
 class INT:
+    ''' Represents the Integer datatype
+    Args:
+        value (int or str): Normal form of a value of the type
+    '''
     def __init__(self, value):
         value = str(value)
         if value != '' and value.isdigit():
@@ -27,6 +60,10 @@ class INT:
             return 'NULL'
 
 class REAL:
+    ''' Represents the Real datatype
+    Args:
+        value (str or float): Normal form of a value of the type
+    '''
     def __init__(self, value):
         value = str(value)
         if value != '' and '.' in value:
@@ -43,7 +80,11 @@ class REAL:
         else:
             return 'NULL'
 
-class STRING:
+class STRING:    
+    ''' Represents the String datatype
+    Args:
+        value (str): Normal form of a value of the type
+    '''
     def __init__(self, value):
         value = str(value)
         if value != '':
@@ -57,7 +98,11 @@ class STRING:
         else:
             return 'NULL'
 
-class CHAR:
+class CHAR:    
+    ''' Represents the Char datatype
+    Args:
+        value (str): Normal form of a value of the type
+    '''
     def __init__(self, value):
         value = str(value)
         if value != '' and len(value) == 1:
@@ -72,6 +117,12 @@ class CHAR:
             return 'NULL'
 
 class DATE:
+    ''' Represents the Date datatype
+    Args:
+        value (str): Normal form of a value of the type, it should have the form
+                     yyyy-mm-dd hh:mm:ss.
+    '''
+
     def __init__(self, value):
         value = str(value)
         parts = value.split()
@@ -93,19 +144,3 @@ class DATE:
             return str(self.data)
         else:
             return 'NULL'
-
-def test():
-    true = BOOL('TRUE')
-    print true
-    false = BOOL('FALSE')
-    print false
-    one = INT(123123)
-    print one
-    peano = REAL(322.23423)
-    print peano
-    string = STRING("Sebastian Valencia")
-    print string
-    char = CHAR('a')
-    print char
-    dt = DATE('2011-09-21 15:31:54')
-    print dt
