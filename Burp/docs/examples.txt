@@ -45,8 +45,6 @@
 (PROJECT (sname) 
 	(JOIN (SELECT (= bid 103) reserves) sailors)))
 
-πsname((σcolor=′red′ Boats) ◃▹ Reserves ◃▹ Sailors)
-
 (PROJECT (name) 
 	(PROJECT (sid)
 		(JOIN
@@ -74,3 +72,5 @@
 (PROJECT (sname) 
 	(JOIN sailors reserves)
 )
+
+(SELECT (AND (= name 'philip') (> id 324)) S1)
