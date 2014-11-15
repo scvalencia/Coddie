@@ -1,0 +1,7 @@
+Comparissons in types.
+Tests for every class.
+Comments.
+Error messages.
+Welcome and final messages
+Parsing.
+Garbage collection.
