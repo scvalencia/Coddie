@@ -188,7 +188,7 @@ class Relation(object):
             # New relation's name
             seed = string.digits
             new_name = 'ProjectionOn' 
-            new_name += self.name.capitalize() + '-' 
+            new_name += self.name.lower().capitalize() + '-' 
             new_name += ''.join(random.choice(seed) for _ in range(5))
 
             # New relation's types
