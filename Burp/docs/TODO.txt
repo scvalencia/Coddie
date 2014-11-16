@@ -4,5 +4,7 @@ Comments.
 Error messages.
 Welcome and final messages
 Parsing.
-Garbage collection.
+Garbage collection on nested enviroemtns.
 Own displaying layout.
+File compilation.
+CSV/SQL/Excel to BURP.
