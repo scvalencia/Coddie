@@ -207,7 +207,7 @@ class Relation(object):
                 addition_tuple = [itm[i] for i in indexes]
                 ans.insert(addition_tuple)
 
-            self.error_queue += ans.error_queue # State of self.error_queue must preserve
+            self.error_queue += ans.error_queue
 
         return ans
 
