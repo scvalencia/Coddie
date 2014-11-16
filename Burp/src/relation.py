@@ -237,10 +237,10 @@ class Relation(object):
         else:
             return 'CONST'
 
-    # I/O methods for BURP internal implementation
-
     def flush(self):
         self.error_queue = []
+
+    # I/O methods for BURP internal implementation
 
     def display(self):
         ''' Display the relation in tabular form, that is, whith the named columns
