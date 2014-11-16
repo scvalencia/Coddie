@@ -26,6 +26,8 @@ Compound operations based on the base ones are:
 '''
 
 import tabulate
+import string
+import random
 
 from dataTypes import INT
 from dataTypes import REAL
@@ -48,15 +50,31 @@ class Relation(object):
             is done using sets, and dictionaries. Attributes are internally
             handlead as uppercase letters
         '''
-        self.error_queue = [] # Error handling
-        self.name = name
+
+         # Error handling
+        self.error_queue = []
+
+        # Relation name
+        self.name = name 
+
+        # Relations arity
         self.arity = len(attributes)
+
+        # Relation heading (attribute_name, type)
         self.heading = None
+
+        # Relation tuples internal representation, used for hashing
         self.tuples = []
+
+        # Memory mapping of relations tuples, used for insertion on new relations
+        self.data = []
+
+        # Number of elements in the realtion
         self.cardinality = 0
 
         if len(types) == self.arity:
             self.heading = zip([_.upper() for _ in attributes], types)
+
         else:
             self.error_queue.append("The length of types must be the same length of attributes")
 
@@ -101,6 +119,7 @@ class Relation(object):
                 # Unique success branch
                 if real_data not in self.tuples:
                     self.tuples.append(real_data)
+                    self.data.append(to_insert)
                     self.cardinality += 1
                     ans = True
 
@@ -122,13 +141,66 @@ class Relation(object):
     # Base relational algebra operations
 
     def project(self, attributes):
-        attributes = [_.upper() for _ in attributes]
-        relation_attributes = [at for (at, _) in self.heading]
+        ''' Handles projection operation as in relation algebra.
+            it discriminate certain columns of the relation to 
+            create a new relation with the original data but just
+            with the indicated columns. It should check pertinence
+            of execution as well as new relation creation.
+
+            Args:
+                attributes (list): attributes to project
+
+            Returns:
+                Relation: the projected relation on the original one
+
+        '''
+
+        ans = None # Final relation
+        attributes = [_.upper() for _ in attributes] # Internal representation
+        relation_attributes = [at for (at, _) in self.heading] # Relation's attributes
+
+        indexes = [] # Indexes of the received attributes in the relation's attributes
+
+        flag = True
+        
         for attribute in attributes:
+            # Pertinence of execution
             if attribute not in relation_attributes:
+                flag = False
                 error_message = attribute + ' not in ' + self.name + ' relation.'
                 error_message += ' Unable to perform projection.'
                 self.error_queue.append(error_message)
+            if flag:
+                position = relation_attributes.index(attribute)
+                indexes.append(position)
+
+        if flag:
+
+            # New relation's name
+            seed = string.digits
+            new_name = 'ProjectionOn' 
+            new_name += self.name.capitalize() + '-' 
+            new_name += ''.join(random.choice(seed) for _ in range(5))
+
+            # New relation's types
+            real_types = [tp for (_, tp) in self.heading]
+            new_types = [real_types[i] for i in indexes]
+
+            # New relation's attributes
+            real_attributes = [at for (at, _) in self.heading]
+            new_attributes = [real_attributes[i] for i in indexes]
+
+            # Return value creation
+            ans = Relation(new_name, new_types, new_attributes)
+
+            # Return value population
+            for itm in self.data:
+                addition_tuple = [itm[i] for i in indexes]
+                ans.insert(addition_tuple)
+
+            self.error_queue += ans.error_queue # State of self.error_queue must preserve
+
+        return ans
 
     def select(self, columns, rel_ops, values, connectors):
         pass
@@ -180,6 +252,6 @@ class Relation(object):
 
 r = Relation('S', [INT, INT, STRING], ['ID', 'QTY', 'NAME'])
 print r.insert([INT(1), INT(2), STRING("Hola")])
-print r.project(['HU'])
+print r.project(['name', 'qty'])
 print r.tuples
 print r.error_queue
