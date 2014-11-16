@@ -216,6 +216,9 @@ class Relation(object):
 
     # Compound relational algebra operations
 
+    def join(self, arg_relation):
+        pass
+
     # Internal data handling methods
 
     def get_lazy_type(self, value):
