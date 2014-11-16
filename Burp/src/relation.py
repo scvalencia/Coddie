@@ -45,7 +45,8 @@ class Relation(object):
 
     def __init__(self, name, types, attributes):
         ''' Internal representation of a relation described as in Codd,
-            is done using sets, and dictionaries.
+            is done using sets, and dictionaries. Attributes are internally
+            handlead as uppercase letters
         '''
         self.error_queue = [] # Error handling
         self.name = name
@@ -55,7 +56,7 @@ class Relation(object):
         self.cardinality = 0
 
         if len(types) == self.arity:
-            self.heading = zip(attributes, types)
+            self.heading = zip([_.upper() for _ in attributes], types)
         else:
             self.error_queue.append("The length of types must be the same length of attributes")
 
@@ -77,7 +78,7 @@ class Relation(object):
 
         ans = False # Success control
         length = len(to_insert)
-         
+
         if length == self.arity:
             flag = True
             real_types = [tp for (_, tp) in self.heading] # Types of the relation
@@ -115,10 +116,19 @@ class Relation(object):
 
         return ans
 
+    def delete(self, columns, rel_ops, values, connectors):
+        pass
+
     # Base relational algebra operations
 
     def project(self, attributes):
-        pass
+        attributes = [_.upper() for _ in attributes]
+        relation_attributes = [at for (at, _) in self.heading]
+        for attribute in attributes:
+            if attribute not in relation_attributes:
+                error_message = attribute + ' not in ' + self.name + ' relation.'
+                error_message += ' Unable to perform projection.'
+                self.error_queue.append(error_message)
 
     def select(self, columns, rel_ops, values, connectors):
         pass
@@ -170,6 +180,6 @@ class Relation(object):
 
 r = Relation('S', [INT, INT, STRING], ['ID', 'QTY', 'NAME'])
 print r.insert([INT(1), INT(2), STRING("Hola")])
-print r.insert([INT(1), INT(2), STRING("Hola")])
+print r.project(['HU'])
 print r.tuples
 print r.error_queue
