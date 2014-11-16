@@ -1,304 +1,174 @@
 ''' relation.py
 
 This module defines the class of a relation, the main structure in
-BURP, a relation is .... 
+BURP. Informally, a relation can be viewed as a structure with two
+parts, a heading and a body. The heading is a collection of typed 
+attributes, while the body is a collection of typed tuples whose i'th
+entry has the type of the i'th attribute. The body is a set, so it must
+avoid duplicates, the length of the hading is the arity of a relation, 
+while the length of the body is said to be the cardinality of the 
+relation. This module also defines the semantics of BURP, that is,
+the procedual abstraction of an operation in the relational algebra.
+Compound operatons are expressed using base operations, if optimization
+is not specified.
+
+A relation is created by indicating the typed body, and a name.
+A relation must allow tuples to be inserted, and should
+handle some abstraction for relational algebra operations, the supported
+basic operations are:
+
+[SELECTION, PROJECTION, UNION, DIFFERENCE, CARTESIAN-PRODUCT]
+
+Compound operations based on the base ones are:
+
+[JOIN, INTERSECTION, RENAMING, ASSIGNMENT]
+
 '''
 
 import tabulate
-import dataTypes
 
+from dataTypes import INT
+from dataTypes import REAL
+from dataTypes import CHAR
+from dataTypes import BOOL
+from dataTypes import STRING
+from dataTypes import DATE
 
 class Relation(object):
+    ''' Represents the kernel of BURP, and provides abstractions for operations
+    Args:
+        name (str): the name of the relation
+        types (dataType): the types of the columns from left to right
+        attributes (str): the names of the columns from left to right
 
-    def __init__(self, name, types, attributes, key):
-        self.error_queue = []
-        if len(types) == len(attributes):
-            self.name = name
-            self.types = types
-            self.attributes = attributes
-            self.tuples = []
-            self.used_keys = []
-            self.key_attribute = key
-        else:
-            self.error_queue.append('The length of types must be the same length of attributes')
+    '''
 
-    def insert(self, register, aux = False):
-        ans = False
-        length = len(register)
-        if not aux:
-            if length == len(self.attributes):
-                table = dict(zip(self.attributes, map(str, register)))
-                if table[self.key_attribute] in self.used_keys:
-                    self.error_queue.append('Primary key violated: ' + table[self.key_attribute] + ' inserting ' + str(map(str, register)))
-                else:                
-                    flag = True
-                    for i in range(length):
-                        obj = register[i]
-                        type_obj = self.types[i]
-                        if isinstance(obj, type_obj):
-                            pass
-                        else:
-                            self.error_queue.append('Type constraint violated inserting ' + obj + '. Expected type is: ' + str(type_obj) + '. Received type is: ' + obj.__class__.__name__)
-                            flag = False
-                            break
-                    if flag:
-                        self.used_keys.append(table[self.key_attribute])
-                        self.tuples.append(register)
-                    ans = flag
+    def __init__(self, name, types, attributes):
+        ''' Internal representation of a relation described as in Codd,
+            is done using sets, and dictionaries.
+        '''
+        self.error_queue = [] # Error handling
+        self.name = name
+        self.arity = len(attributes)
+        self.heading = None
+        self.tuples = []
+        self.cardinality = 0
+
+        if len(types) == self.arity:
+            self.heading = zip(attributes, types)
         else:
+            self.error_queue.append("The length of types must be the same length of attributes")
+
+    # Modeling methods
+
+    def insert(self, to_insert):
+        ''' Handles data insertion on a relations, the insertion
+            is successful iff the object is not already in the body
+            and the desired types are the relation types defined
+            in self.types. If the insertion failed, related information
+            shall be included in the respective error_queue.
+
+        Args:
+            to_insert (list): the new row in the relation
+
+        Returns:
+            bool: True if successful, False otherwise
+        '''
+
+        ans = False # Success control
+        length = len(to_insert) 
+        if length == self.arity:
             flag = True
-            for i in range(length):
-                obj = register[i]
-                type_obj = self.types[i]
-                if isinstance(obj, type_obj): pass
-                else:
-                    self.error_queue.append('Type constraint violated inserting ' + str(map(str, register)) + '. Expected type is: ' + str(type_obj))
+            real_types = [tp for (_, tp) in self.heading] # Types of the relation
+
+            i = 0
+            for itm in to_insert:
+                if not isinstance(itm, real_types[i]):
                     flag = False
-                    break
+                    error_message = "Error inserting " + str(itm.data) + ". "
+                    error_message += "Expected type is: " + real_types[i].__name__
+                    error_message += ". Received type is " + self.get_lazy_type(itm)
+                    self.error_queue.append(error_message)
+                i += 1
+
             if flag:
-                table = dict(zip(self.attributes, map(str, register)))
-                self.tuples.append(register)
-            ans = flag
-        return ans
+                # Internal data representation of tuple
+                real_data = [_.data for _ in to_insert]
+                real_data = tuple(real_data)
 
-    def delete(self, pk):
-        pk = str(pk)
-        ans = True
-        if pk not in self.used_keys:
-            self.error_queue.append(str(pk) + ' not found in table.' )
-            ans = False
+                # Unique success branch
+                if real_data not in self.tuples:
+                    self.tuples.append(real_data)
+                    self.cardinality += 1
+                    ans = True
+                    
+                else:
+                    error_message = str(real_data) + " is already present on the relation."
+                    self.error_queue.append(error_message)
+
         else:
-            index = self.attributes.index(self.key_attribute)
-            tuples = []
-            for item in self.tuples:
-                obj = []
-                for itm in item:
-                    obj.append(str(itm))
-                obj = tuple(obj)
-                tuples.append(obj)
+            error_message = "Length of the tuple must be the same of the columns. "
+            error_message += "Expected value: " + str(self.arity)
+            error_message += ". Received value: " + str(length)
+            self.error_queue.append(error_message)
 
-            obj = filter(lambda x : x[self.attributes.index(self.key_attribute)] == pk, tuples)
-            obj = obj.pop(0)
-            index_object = tuples.index(obj)
-            self.used_keys.pop(index_object)
-            self.tuples.pop(index_object)
         return ans
+
+    # Base relational algebra operations
 
     def project(self, attributes):
-        length = len(filter(lambda x : x in self.attributes, attributes))
-        if length == len(attributes):
-            indeces = [self.attributes.index(_) for _ in attributes]
-            types = [self.types[i] for i in map(int, indeces)]
-            type_names = map(str, types)
-            name = 'ProjectionOn' + self.name.capitalize()
-            new_relation = Relation(name, types, attributes, None)
-            for itm in self.tuples:
-                to_add = [itm[_] for _ in map(int, indeces)]
-                new_relation.insert(to_add, True)            
-            return new_relation
-        else:
-            self.error_queue.append('Attribute not in table, unable to perform projection.')
+        pass
 
-    def selection(self, arguments, rel_ops, values, connectors):
-        # Shouldn't contain NOT, those should be processed earlier
-        if len(arguments) == len(rel_ops) == len(values):
-            if True: 
-                types = dict(zip(self.attributes, self.types))
-                ans = Relation('SelectionOn' + self.name, self.types, self.attributes, self.key_attribute)
-                args_types = [types[_] for _ in arguments]
-                positions = map(lambda x : self.attributes.index(x) , arguments)
-                relations = zip(positions, rel_ops, values)
-                if args_types == [self.types[int(_)] for _ in positions]:
-                    variables_of_comparisson = self.get_variable_comparisson_values(values)
-                    if variables_of_comparisson == []:
-                        i = 0
-                        for itm in self.tuples:
-                            if self.compose_filter(i, relations, connectors):
-                                ans.insert(itm)
-                            i += 1
-                    else:
-                        i = 0
-                        relations = self.replace_values_by_index(relations)
-                        for itm in self.tuples:
-                            if self.compose_filter(i, relations, connectors, False, variables_of_comparisson):
-                                ans.insert(itm)
-                            i += 1                    
-                else:
-                    self.error_queue.append('Wrong types in selection statement')
-                # Check types and so on, if argument
-                return ans
-        else:
-            self.error_queue.append('Malformed predicate')
+    def select(self, columns, rel_ops, values, connectors):
+        pass
 
-    def replace_values_by_index(self, relations):
-        positions, rel_ops, values = zip(*relations)
-        common = set(self.attributes).intersection(set(values))
-        values = [self.attributes.index(_) if (_ in common) else (_, False) for _ in values]
-        return zip(positions, rel_ops, values)
+    def union(self, arg_relation):
+        pass
 
-    def compose_filter(self, position, relations, connectors, normal_form = True, indexes = None):
-        connectors_copy = [_ for _ in connectors]
-        if normal_form:
-            ans = True
-            if connectors_copy[0] == 'AND':
-                ans = True
-            else:
-                ans = False
-            while True:
-                if connectors_copy == []:
-                    break
-                operation = self.map_relational_operator(connectors_copy.pop(0))
-                for itm in relations:
-                    left = self.tuples[position][int(itm[0])].data
-                    rigth = itm[2]
-                    value = self.relation_operation(itm[1], left, rigth)
-                    ans = operation(ans, value)       
-            return ans
-        else:          
-            ans = True
-            if connectors_copy[0] == 'AND':
-                ans = True
-            else:
-                ans = False
-            while True:
-                if connectors_copy == []:
-                    break
-                operation = self.map_relational_operator(connectors_copy.pop(0))
-                for itm in relations:
-                    left = self.tuples[position][int(itm[0])].data
-                    rigth = itm[2]
-                    if isinstance(rigth, tuple):
-                        rigth = rigth[0]
-                    else:
-                        rigth = self.tuples[position][int(itm[2])].data
-                    value = self.relation_operation(itm[1], left, rigth)
-                    ans = operation(ans, value)       
-            return ans
+    def cross(self, arg_relation):
+        pass
 
-    def map_relational_operator(self, value):
-        if value == 'AND':
-            return lambda a, b : a and b
-        elif value == 'OR':
-            return lambda a, b : a or b
+    def doference(self, arg_relation):
+        pass
 
-    def relation_operation(self, rel_op, a, b):
-        if rel_op == '=':
-            return a == b
-        elif rel_op == '<>':
-            return a != b
-        elif rel_op == '<':
-            return a < b
-        elif rel_op == '>':
-            return a > b
-        elif rel_op == '<=':
-            return a <= b
-        elif rel_op == '>=':
-            return a >= b
+    # Compound relational algebra operations
+
+    # Internal data handling methods
 
     def get_lazy_type(self, value):
-        if dataTypes.BOOL(value).data != '':
+        if BOOL(value).data != '':
             return 'BOOL'
-        elif dataTypes.INT(value).data != '':
+        elif INT(value).data != '':
             return 'INT'
-        elif dataTypes.REAL(value).data != '':
+        elif REAL(value).data != '':
             return 'REAL'
-        elif dataTypes.STRING(value).data != '':
+        elif STRING(value).data != '':
             return 'STRING'
-        elif dataTypes.CHAR(value).data != '':
+        elif CHAR(value).data != '':
             return 'CHAR'
-        elif dataTypes.DATE(value).data != '':
+        elif DATE(value).data != '':
             return 'DATE'
         else:
             return 'CONST'
 
-    def get_variable_comparisson_values(self, values):
-        ans = []
-        i = 0
-        common = set(self.attributes).intersection(set(values))
-        ans = [(self.attributes.index(_), values.index(_)) for _ in common]
-        return ans
+    # I/O methods for BURP internal implementation
 
-    def rename(self, former, current):
-        correct_values = [(_ in self.attributes) for _ in former]
-        if correct_values.count(True) == len(former):
-            i = 0
-            for itm in former:
-                index = self.attributes.index(itm)
-                self.attributes[index] = current[i]
-                i += 1
-        else:
-            self.error_queue.append('Wrong rename parameters')
+    def display(self):
+        ''' Display the relation in tabular form, that is, whith the named columns
+            and data
 
-    def get_cardinality(self):
-        return len(self.tuples)
+            references:
+                [1]. http://jtauber.com/blog/2005/11/11/relational_python:_displaying_relations/
+                [2]. https://pypi.python.org/pypi/tabulate
+                [3]. https://bitbucket.org/astanin/python-tabulate
+                
+        '''
 
-    def __str__(self):
-        headers = self.attributes
-        table = []
-        for tpl in self.tuples:
-            new_tpl = []
-            for itm in tpl:
-                new_tpl.append(str(itm))
-            table.append(new_tpl)
-
-        return tabulate.tabulate(table, headers, tablefmt="grid")
+        pass
 
 
-
-'''
-attributes = ['ID', 'NAME', 'IS_COOL']
-types = [dataTypes.INT, dataTypes.STRING, dataTypes.BOOL]
-key = 'ID'
-tuple_1 = (dataTypes.INT(1), dataTypes.STRING('Natalia'), dataTypes.BOOL('FALSE'))
-tuple_2 = (dataTypes.INT(2), dataTypes.STRING('Carlos'), dataTypes.BOOL('TRUE'))
-rel = Relation('Dudes', types, attributes, key)
-rel.insert(tuple_1)
-rel.insert(tuple_2)
-print rel
-rel.delete('2')
-for itm in rel.error_queue:
-    print itm
-print rel
-tuple_2 = (dataTypes.INT(2), dataTypes.STRING('Carlos'), dataTypes.BOOL('TRUE'))
-rel.insert(tuple_2)
-print rel
-
-print rel.project(['NAME'])
-print rel.project(['NAME', 'ID'])
-
-
-r = Relation('Projection', [dataTypes.INT], ['ID'], 'ID')
-for i in range(8):
-    r.insert((dataTypes.INT(i),), True)
-
-
-r.insert((dataTypes.INT(19),), True)
-r.insert((dataTypes.INT(19),), True)
-print r
-r.delete('5')
-r.delete('19')
-for i in r.error_queue:
-    print i
-print r
-
-
-attributes = ['NAME', 'AGE', 'WEIGHT']
-types = [dataTypes.STRING, dataTypes.INT, dataTypes.INT]
-tuple_1 = (dataTypes.STRING('Harry'), dataTypes.INT(34), dataTypes.INT(80))
-tuple_2 = (dataTypes.STRING('Sally'), dataTypes.INT(28), dataTypes.INT(64))
-tuple_3 = (dataTypes.STRING('George'), dataTypes.INT(29), dataTypes.INT(70))
-tuple_4 = (dataTypes.STRING('Helena'), dataTypes.INT(54), dataTypes.INT(54))
-tuple_5 = (dataTypes.STRING('Peter'), dataTypes.INT(34), dataTypes.INT(80))
-rel = Relation('Persons', types, attributes, 'NAME')
-rel.insert(tuple_1)
-rel.insert(tuple_2)
-rel.insert(tuple_3)
-rel.insert(tuple_4)
-rel.insert(tuple_5)
-print rel
-print rel.selection(['AGE', 'WEIGHT'], ['=', '='], ['WEIGHT', 54], ['OR'])
-rel.rename(['NAME'], ['YOUR_NAME'])
-print rel
-print rel.project(['AGE'])
-'''
-
+r = Relation('S', [INT, INT, STRING], ['ID', 'QTY', 'NAME'])
+print r.insert([INT(1), INT(2), STRING("Hola")])
+print r.insert([INT(1), INT(2), STRING("Hola")])
+print r.tuples
+print r.error_queue
