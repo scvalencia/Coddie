@@ -76,7 +76,8 @@ class Relation(object):
         '''
 
         ans = False # Success control
-        length = len(to_insert) 
+        length = len(to_insert)
+         
         if length == self.arity:
             flag = True
             real_types = [tp for (_, tp) in self.heading] # Types of the relation
@@ -101,7 +102,7 @@ class Relation(object):
                     self.tuples.append(real_data)
                     self.cardinality += 1
                     ans = True
-                    
+
                 else:
                     error_message = str(real_data) + " is already present on the relation."
                     self.error_queue.append(error_message)
