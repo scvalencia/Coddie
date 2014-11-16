@@ -41,6 +41,10 @@ class BOOL(object):
         else:
             return 'NULL'
 
+    def __eq__(self, other):
+        return self.data == other.data
+
+
 class INT(object):
     ''' Represents the Integer datatype
     Args:
@@ -58,6 +62,9 @@ class INT(object):
             return str(self.data)
         else:
             return 'NULL'
+
+    def __eq__(self, other):
+        return self.data == other.data
 
 class REAL(object):
     ''' Represents the Real datatype
@@ -80,6 +87,9 @@ class REAL(object):
         else:
             return 'NULL'
 
+    def __eq__(self, other):
+        return self.data == other.data
+
 class STRING(object):    
     ''' Represents the String datatype
     Args:
@@ -98,6 +108,9 @@ class STRING(object):
         else:
             return 'NULL'
 
+    def __eq__(self, other):
+        return self.data == other.data
+
 class CHAR(object):    
     ''' Represents the Char datatype
     Args:
@@ -115,6 +128,9 @@ class CHAR(object):
             return str(self.data)
         else:
             return 'NULL'
+
+    def __eq__(self, other):
+        return self.data == other.data
 
 class DATE(object):
     ''' Represents the Date datatype
@@ -144,3 +160,6 @@ class DATE(object):
             return str(self.data)
         else:
             return 'NULL'
+
+    def __eq__(self, other):
+        return self.data == other.data
