@@ -181,7 +181,15 @@ def date_model(number):
 		print suppliers.error_queue
 		suppliers.flush()
 
-		example = suppliers.project(['CITY'])
+		example = suppliers.project(['city'])
+		if example:
+			print example.name
+			example.display()
+
+		print suppliers.error_queue
+		suppliers.flush()		
+
+		example = suppliers.project(['status'])
 		if example:
 			print example.name
 			example.display()
@@ -198,4 +206,4 @@ def date_model(number):
 
 	menu(number)
 
-date_model(1)
+date_model(2)
