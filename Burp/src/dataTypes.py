@@ -23,7 +23,7 @@ type.
 Types = [BOOL, INT, REAL, STRING, CHAR, DATE]
 '''
 
-class BOOL:
+class BOOL(object):
     ''' Represents the Boolean datatype
     Args:
         value (str): Normal form of a value of the type
@@ -41,7 +41,7 @@ class BOOL:
         else:
             return 'NULL'
 
-class INT:
+class INT(object):
     ''' Represents the Integer datatype
     Args:
         value (int or str): Normal form of a value of the type
@@ -59,7 +59,7 @@ class INT:
         else:
             return 'NULL'
 
-class REAL:
+class REAL(object):
     ''' Represents the Real datatype
     Args:
         value (str or float): Normal form of a value of the type
@@ -80,7 +80,7 @@ class REAL:
         else:
             return 'NULL'
 
-class STRING:    
+class STRING(object):    
     ''' Represents the String datatype
     Args:
         value (str): Normal form of a value of the type
@@ -98,7 +98,7 @@ class STRING:
         else:
             return 'NULL'
 
-class CHAR:    
+class CHAR(object):    
     ''' Represents the Char datatype
     Args:
         value (str): Normal form of a value of the type
@@ -116,7 +116,7 @@ class CHAR:
         else:
             return 'NULL'
 
-class DATE:
+class DATE(object):
     ''' Represents the Date datatype
     Args:
         value (str): Normal form of a value of the type, it should have the form
