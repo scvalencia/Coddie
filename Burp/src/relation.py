@@ -141,7 +141,25 @@ class Relation(object):
     # Base relational algebra operations
 
     def union(self, arg_relation):
-        pass
+        ''' Defines the union of two realtions, mathematically, 
+            the union is defined as tuples both in R1, and in R2.
+            Formally, 
+
+            R U P = {t| t in R \/ t in R}
+
+            Both relations should be union compatible, that is, the 
+            columns domains must be the same in the same order for
+            both relations, in order to guarantee this property, we 
+            check compatibility. Tuples in the intersection must be
+            omitted.
+
+            Args:
+                arg_relation (Relation): another relation object
+
+            Returns:
+                Relation: union of this relation and the given one
+
+        '''
 
     def cross(self, arg_relation):
         pass
