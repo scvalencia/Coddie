@@ -5,6 +5,8 @@ from dataTypes import REAL
 
 def date_model(number):
 
+	# As in Date- Databases in depth, pag 9
+
 	# Relation suppliers: denotes suppliers under contract, each suplier has one
 	# supplier number (SNO), which is unique; one name (SNAME), not necessarily 
 	# unique, one rating or status (STATUS) and one location (CITY).
@@ -12,8 +14,7 @@ def date_model(number):
 	name = 'Suppliers'
 	types = [INT, STRING, INT, STRING]
 	attributes = ['SNO', 'SNAME', 'STATUS', 'CITY']
-	pk = 'SNO'
-	suppliers = Relation(name, types, attributes, pk)
+	suppliers = Relation(name, types, attributes)
 
 	data = (INT(1), STRING('Smith'), INT(20), STRING('London'))
 	suppliers.insert(data)
@@ -37,8 +38,7 @@ def date_model(number):
 	name = 'Parts'
 	types = [INT, STRING, STRING, REAL, STRING]
 	attributes = ['PNO', 'PNAME', 'COLOR', 'WEIGHT', 'CITY']
-	pk = 'PNO'
-	parts = Relation(name, types, attributes, pk)
+	parts = Relation(name, types, attributes)
 
 	data = (INT(1), STRING('Nut'), STRING('Red'), REAL(12.0), STRING('London'))
 	parts.insert(data)
@@ -65,19 +65,18 @@ def date_model(number):
 	name = 'Shipments'
 	types = [INT, INT, INT]
 	attributes = ['SNO', 'PNO', 'QTY']
-	pk = 'QTY'
-	shipments = Relation(name, types, attributes, pk)
+	shipments = Relation(name, types, attributes)
 
 	data = (INT(1), INT(1), INT(300))
 	shipments.insert(data)
 
 	def test_string_rep():
 		print
-		print suppliers
+		suppliers.display()
 		print 
-		print parts
+		parts.display()
 		print
-		print shipments
+		shipments.display()
 
 	def menu(number):
 		if number == 1:
