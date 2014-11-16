@@ -140,6 +140,15 @@ class Relation(object):
 
     # Base relational algebra operations
 
+    def union(self, arg_relation):
+        pass
+
+    def cross(self, arg_relation):
+        pass
+
+    def doference(self, arg_relation):
+        pass
+
     def project(self, attributes):
         ''' Handles projection operation as in relation algebra.
             it discriminate certain columns of the relation to 
@@ -205,15 +214,6 @@ class Relation(object):
     def select(self, columns, rel_ops, values, connectors):
         pass
 
-    def union(self, arg_relation):
-        pass
-
-    def cross(self, arg_relation):
-        pass
-
-    def doference(self, arg_relation):
-        pass
-
     # Compound relational algebra operations
 
     # Internal data handling methods
@@ -247,11 +247,21 @@ class Relation(object):
                 
         '''
 
-        pass
+        headers = [at for (at, _) in self.heading]
+        table = []
+        for tpl in self.tuples:
+            new_tpl = []
+            for itm in tpl:
+                new_tpl.append(str(itm))
+            table.append(new_tpl)
+
+        print tabulate.tabulate(table, headers, tablefmt="grid")
 
 
 r = Relation('S', [INT, INT, STRING], ['ID', 'QTY', 'NAME'])
 print r.insert([INT(1), INT(2), STRING("Hola")])
-print r.project(['name', 'qty'])
+
+r.display()
+r.project(['name', 'qty']).display()
 print r.tuples
 print r.error_queue
