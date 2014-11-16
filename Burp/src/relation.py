@@ -236,6 +236,9 @@ class Relation(object):
 
     # I/O methods for BURP internal implementation
 
+    def flush(self):
+        self.error_queue = []
+
     def display(self):
         ''' Display the relation in tabular form, that is, whith the named columns
             and data
@@ -256,12 +259,3 @@ class Relation(object):
             table.append(new_tpl)
 
         print tabulate.tabulate(table, headers, tablefmt="grid")
-
-
-r = Relation('S', [INT, INT, STRING], ['ID', 'QTY', 'NAME'])
-print r.insert([INT(1), INT(2), STRING("Hola")])
-
-r.display()
-r.project(['name', 'qty']).display()
-print r.tuples
-print r.error_queue
