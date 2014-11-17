@@ -21,8 +21,8 @@ def ERROR004(nm, expected, received):
 	error_message = 'ERROR004: Could not insert value to the relation ' + nm + ' due to model '
 	error_message += 'inconsistencies.' + '\n'
 	error_message += 'The length of the tuple must be the same of the columns. '
-	error_message += "Expected value: " + expected
-	error_message += ". Received value: " + received
+	error_message += "Expected length: " + expected
+	error_message += ". Received length: " + received
 	return error_message
 
 def ERROR005(nm, expected, received):
