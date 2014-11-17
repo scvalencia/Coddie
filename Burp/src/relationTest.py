@@ -247,6 +247,13 @@ def date_model(number):
 			print rigth.error_queue
 			rigth.flush()
 
+	def test_cross():
+		ans = suppliers.cross(parts)
+		ans.display()
+
+		ans = suppliers.project(['SNO', 'CITY']).cross(shipments)
+		ans.display()
+
 	def menu(number):
 		test_insert()
 		print dmg.error_queue
@@ -256,7 +263,9 @@ def date_model(number):
 			test_project()
 		elif number == 3:
 			test_union()
+		elif number == 4:
+			test_cross()
 
 	menu(number)
 
-date_model(3)
+date_model(4)
