@@ -225,9 +225,7 @@ class Relation(object):
             # Pertinence of execution
             if attribute not in relation_attributes:
                 flag = False
-                error_message = attribute + ' not in ' + self.name + ' relation.'
-                error_message += ' Unable to perform projection.'
-                self.error_queue.append(error_message)
+                self.error_queue.append(errorMessages.ERRO6006(attribute, self.name))
             if flag:
                 position = relation_attributes.index(attribute)
                 indexes.append(position)
