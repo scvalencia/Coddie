@@ -109,6 +109,8 @@ def date_model(number):
 		data = (INT(4), INT(5), INT(400))
 		shipments.insert(data)
 
+		'''
+
 		data = (INT(4), INT(5), INT(400))
 		shipments.insert(data)
 
@@ -117,6 +119,8 @@ def date_model(number):
 
 		data = (INT(4), INT(5))
 		shipments.insert(data)
+
+		'''
 
 		print shipments.error_queue
 
@@ -197,13 +201,21 @@ def date_model(number):
 		print suppliers.error_queue
 		suppliers.flush()
 
+	def test_union():
+		example = suppliers.project(['CITY']).union(parts.project(['CITY']))
+		example.display()
+		print example.name
+		print example.error_queue
+
 	def menu(number):
 		test_insert()
 		if number == 1:
 			test_display()
 		elif number == 2:
 			test_project()
+		elif number == 3:
+			test_union()
 
 	menu(number)
 
-date_model(2)
+date_model(3)
