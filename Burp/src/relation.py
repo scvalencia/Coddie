@@ -215,6 +215,36 @@ class Relation(object):
                 of two relations
         '''
 
+        real_types = [tp for (_, tp) in self.heading] # Relation's types
+        arg_types = [tp for (_, tp) in arg_relation.heading] # Other relation's types
+        new_types = real_types + arg_types # New relation's types
+
+        ans = None
+
+        seed = string.digits 
+        new_name = self.name.lower().capitalize() 
+        new_name += 'Cross' + arg_relation.name.lower().capitalize()
+        new_name += ''.join(random.choice(seed) for _ in range(5))
+
+        relation_attributes = [at for (at, _) in self.heading]
+        other_attributes = [at for (at, _) in arg_relation.heading]
+        new_attributes = relation_attributes + other_attributes
+
+        # Should rename repeated attributes names!!!
+        #attributes_map = [(_ in relation_attributes and _ in other_attributes) for _ in new_attributes]
+        #print attributes_map
+
+        ans = Relation(new_name, new_types, new_attributes)
+
+        for my_tuple in self.data:
+            for other_tuple in arg_relation.data:
+                my_tuple = list(my_tuple)
+                other_tuple = list(other_tuple)
+                final_tuple = my_tuple + other_tuple
+                ans.insert(final_tuple)
+
+        return ans
+
     def diference(self, arg_relation):
         pass
 
