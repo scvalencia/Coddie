@@ -107,7 +107,7 @@ class Relation(object):
                 if not isinstance(itm, real_types[i]):
                     flag = False
                     self.error_queue.append(errorMessages.ERROR002(self.name, str(itm.data), 
-                        real_types[i].__name__, self.get_lazy_type(itm)))
+                        real_types[i].__name__, str(self.get_lazy_type(itm))))
                 i += 1
 
             if flag:
@@ -161,14 +161,14 @@ class Relation(object):
 
         ans = None
 
+        seed = string.digits 
         new_name = 'UnionOn' + self.name.lower().capitalize() 
         new_name += 'With' + arg_relation.name.lower().capitalize()
         new_name += ''.join(random.choice(seed) for _ in range(5))
 
         # Unique branch of success
         if real_types == arg_types:
-
-            seed = string.digits           
+          
 
             relation_attributes = [at for (at, _) in self.heading]
             other_attributes = [at for (at, _) in arg_relation.heading]
@@ -188,7 +188,10 @@ class Relation(object):
             self.error_queue += ans.error_queue
 
         else:
-            self.error_queue(errorMessages.ERROR005(new_name, real_types, arg_types))
+            r_types = [itm.__name__ for itm in real_types]
+            o_types = [itm.__name__ for itm in arg_types]
+            msg = errorMessages.ERROR005(new_name, str(r_types), str(o_types))
+            self.error_queue.append(msg)
 
         return ans
 
