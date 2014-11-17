@@ -33,3 +33,10 @@ def ERROR005(nm, expected, received):
 	error_message += ". Received domain: " + received
 	return error_message
 
+def ERRO6006(att, nm):
+	error_message = 'ERROR006: Could not create projection on ' + nm + ' due to model '
+	error_message += 'inconsistencies.' + '\n'
+	error_message += 'The attibute ' + att + ' is not in the relation.'
+	return error_message
+
+
