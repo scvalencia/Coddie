@@ -109,8 +109,6 @@ def date_model(number):
 		data = (INT(4), INT(5), INT(400))
 		shipments.insert(data)
 
-		'''
-
 		data = (INT(4), INT(5), INT(400))
 		shipments.insert(data)
 
@@ -119,8 +117,6 @@ def date_model(number):
 
 		data = (INT(4), INT(5))
 		shipments.insert(data)
-
-		'''
 
 		print shipments.error_queue
 
@@ -218,4 +214,4 @@ def date_model(number):
 
 	menu(number)
 
-date_model(3)
+date_model(2)
