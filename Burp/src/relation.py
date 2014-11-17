@@ -196,7 +196,24 @@ class Relation(object):
         return ans
 
     def cross(self, arg_relation):
-        pass
+        ''' Handles cartesian product for the Relation datatype.
+            It represents all the combinations of tuples from both
+            entry relations appended in one grat table. The properties
+            of the output relation are given:
+
+            arity(R) = k1, arity(S) = k2
+            R x S = {r @ s | r in R /\ s in S}
+            arity(R x S) = k1 + k2
+            |R x S| = |R| * |S|
+
+            Args:
+                arg_relation (Relation): the other relation to be 
+                able to perform the binary operation
+
+            Returns:
+                Relation: a relation representing the cross product
+                of two relations
+        '''
 
     def diference(self, arg_relation):
         pass
