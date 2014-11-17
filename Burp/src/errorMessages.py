@@ -1,5 +1,3 @@
-
-# Model errors
 def ERROR001(nm):
 	error_message = 'ERROR 001: Could not create the relation ' + nm + ' '
 	error_message += 'due to model inconsistencies.' + '\n'
@@ -26,3 +24,12 @@ def ERROR004(nm, expected, received):
 	error_message += "Expected value: " + expected
 	error_message += ". Received value: " + received
 	return error_message
+
+def ERROR005(nm, expected, received):
+	error_message = 'ERROR005: Could not create new relation ' + nm + ' due to model '
+	error_message += 'inconsistencies.' + '\n'
+	error_message += 'The domains of each columns must be the same. '
+	error_message += "Expected domain: " + expected
+	error_message += ". Received domain: " + received
+	return error_message
+
