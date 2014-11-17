@@ -34,6 +34,11 @@ def date_model(number):
 	attributes = ['SNO', 'PNO', 'QTY']
 	shipments = Relation(name, types, attributes)
 
+	name = 'Damage'
+	types = [INT, STRING]
+	attributes = ['SEX', 'NAME', 'LAST_NAME']
+	dmg = Relation(name, types, attributes)
+
 	def test_insert():		
 
 		data = (INT(1), STRING('Smith'), INT(20), STRING('London'))
@@ -197,14 +202,54 @@ def date_model(number):
 		print suppliers.error_queue
 		suppliers.flush()
 
+		example = suppliers.project(['NAME'])
+
+		if example:
+			example.display()
+
+		print suppliers.error_queue
+		suppliers.flush()
+
 	def test_union():
+
+		suppliers.flush()
+		rigth = suppliers.project(['CITY'])
+
+		if rigth:
+			left = parts.project(['CITY'])
+			union = rigth.union(left)
+
+			if union:
+				union.display()
+				print union.error_queue
+
+			print rigth.error_queue
+			rigth.flush()
+
 		example = suppliers.project(['CITY']).union(parts.project(['CITY']))
 		example.display()
-		print example.name
-		print example.error_queue
+
+		print suppliers.error_queue
+		suppliers.flush()
+
+		example = suppliers.project(['SNAME']).union(parts.project(['CITY']))
+		example.display()
+
+		print suppliers.error_queue
+		suppliers.flush()
+
+		rigth = suppliers.project(['SNO'])
+
+		if rigth:
+			left = parts.project(['CITY'])
+			union = rigth.union(left)
+
+			print rigth.error_queue
+			rigth.flush()
 
 	def menu(number):
 		test_insert()
+		print dmg.error_queue
 		if number == 1:
 			test_display()
 		elif number == 2:
@@ -214,4 +259,4 @@ def date_model(number):
 
 	menu(number)
 
-date_model(2)
+date_model(3)
