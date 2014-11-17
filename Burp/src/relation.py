@@ -161,14 +161,14 @@ class Relation(object):
 
         ans = None
 
+        new_name = 'UnionOn' + self.name.lower().capitalize() 
+        new_name += 'With' + arg_relation.name.lower().capitalize()
+        new_name += ''.join(random.choice(seed) for _ in range(5))
+
         # Unique branch of success
         if real_types == arg_types:
 
-            seed = string.digits
-
-            new_name = 'UnionOn' + self.name.lower().capitalize() 
-            new_name += 'With' + arg_relation.name.lower().capitalize()
-            new_name += ''.join(random.choice(seed) for _ in range(5))
+            seed = string.digits           
 
             relation_attributes = [at for (at, _) in self.heading]
             other_attributes = [at for (at, _) in arg_relation.heading]
@@ -188,7 +188,7 @@ class Relation(object):
             self.error_queue += ans.error_queue
 
         else:
-            self.error_queue('Not Union-Compatible relations. Types must be the same')
+            self.error_queue(errorMessages.ERROR005(new_name, real_types, arg_types))
 
         return ans
 
