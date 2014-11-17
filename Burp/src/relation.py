@@ -161,6 +161,42 @@ class Relation(object):
 
         '''
 
+        real_types = [tp for (_, tp) in self.heading] # Relation's types
+        arg_types = [tp for (_, tp) in arg_relation.heading] # Other relation's types
+
+        ans = None
+
+        # Unique branch of success
+        if real_types == arg_types:
+
+            seed = string.digits
+
+            new_name = 'UnionOn' + self.name.lower().capitalize() 
+            new_name += 'With' + arg_relation.name.lower().capitalize()
+            new_name += ''.join(random.choice(seed) for _ in range(5))
+
+            relation_attributes = [at for (at, _) in self.heading]
+            other_attributes = [at for (at, _) in arg_relation.heading]
+
+            attributes = [relation_attributes[i] + ':' + other_attributes[i] for (i, _) in enumerate(real_types)]
+
+            ans = Relation(new_name, real_types, attributes) # New relation
+
+            # Appends both tuple set
+
+            for itm in self.data:
+                ans.insert(itm)
+
+            for itm in arg_relation.data:
+                ans.insert(itm)
+
+            self.error_queue += ans.error_queue
+
+        else:
+            self.error_queue('Not Union-Compatible relations. Types must be the same')
+
+        return ans
+
     def cross(self, arg_relation):
         pass
 
@@ -257,6 +293,9 @@ class Relation(object):
 
     def flush(self):
         self.error_queue = []
+
+    def rename(self, new_name):
+        self.name = new_name
 
     # I/O methods for BURP internal implementation
 
