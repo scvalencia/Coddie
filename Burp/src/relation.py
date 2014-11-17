@@ -35,6 +35,7 @@ from dataTypes import CHAR
 from dataTypes import BOOL
 from dataTypes import STRING
 from dataTypes import DATE
+import errorMessages
 
 class Relation(object):
     ''' Represents the kernel of BURP, and provides abstractions for operations
@@ -76,7 +77,7 @@ class Relation(object):
             self.heading = zip([_.upper() for _ in attributes], types)
 
         else:
-            self.error_queue.append("The length of types must be the same length of attributes")
+            self.error_queue.append(errorMessages.ERROR001(self.name))
 
     # Modeling methods
 
@@ -105,10 +106,8 @@ class Relation(object):
             for itm in to_insert:
                 if not isinstance(itm, real_types[i]):
                     flag = False
-                    error_message = "Error inserting " + str(itm.data) + ". "
-                    error_message += "Expected type is: " + real_types[i].__name__
-                    error_message += ". Received type is " + self.get_lazy_type(itm)
-                    self.error_queue.append(error_message)
+                    self.error_queue.append(errorMessages.ERROR002(self.name, str(itm.data), 
+                        real_types[i].__name__, self.get_lazy_type(itm)))
                 i += 1
 
             if flag:
@@ -124,14 +123,10 @@ class Relation(object):
                     ans = True
 
                 else:
-                    error_message = str(real_data) + " is already present on the relation."
-                    self.error_queue.append(error_message)
+                    self.error_queue.append(errorMessages.ERROR003(self.name, str(real_data)))
 
         else:
-            error_message = "Length of the tuple must be the same of the columns. "
-            error_message += "Expected value: " + str(self.arity)
-            error_message += ". Received value: " + str(length)
-            self.error_queue.append(error_message)
+            self.error_queue.append(errorMessages.ERROR004(self.name, str(self.arity), str(length)))
 
         return ans
 
@@ -200,7 +195,7 @@ class Relation(object):
     def cross(self, arg_relation):
         pass
 
-    def doference(self, arg_relation):
+    def diference(self, arg_relation):
         pass
 
     def project(self, attributes):
