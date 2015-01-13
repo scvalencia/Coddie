@@ -56,7 +56,7 @@ class Relation(object):
         self.error_queue = []
 
         # Relation name
-        self.name = name 
+        self.name = name
 
         # Relations arity
         self.arity = len(attributes)
@@ -130,10 +130,7 @@ class Relation(object):
 
         return ans
 
-    def delete(self, columns, rel_ops, values, connectors):
-        pass
-
-    # Base relational algebra operations
+    # Base relational algebra operations, sets operations
 
     def union(self, arg_relation):
         ''' Defines the union of two realtions, mathematically, 
@@ -173,7 +170,7 @@ class Relation(object):
             relation_attributes = [at for (at, _) in self.heading]
             other_attributes = [at for (at, _) in arg_relation.heading]
 
-            attributes = [relation_attributes[i] + ':' + other_attributes[i] for (i, _) in enumerate(real_types)]
+            attributes = relation_attributes
 
             ans = Relation(new_name, real_types, attributes) # New relation
 
@@ -194,6 +191,46 @@ class Relation(object):
             self.error_queue.append(msg)
 
         return ans
+
+    def diference(self, arg_relation):
+
+        real_types = [tp for (_, tp) in self.heading] # Relation's types
+        arg_types = [tp for (_, tp) in arg_relation.heading] # Other relation's types
+
+        ans = None
+
+        seed = string.digits 
+        new_name = 'DifferenceOn' + self.name.lower().capitalize() 
+        new_name += 'With' + arg_relation.name.lower().capitalize()
+        new_name += ''.join(random.choice(seed) for _ in range(5))
+
+        # Unique branch of success
+        if real_types == arg_types:          
+
+            relation_attributes = [at for (at, _) in self.heading]
+            other_attributes = [at for (at, _) in arg_relation.heading]
+
+            attributes = relation_attributes
+
+            ans = Relation(new_name, real_types, attributes)
+
+            for itm in self.data:
+                if itm not in arg_relation.data:
+                    ans.insert(itm)
+
+            self.error_queue += ans.error_queue
+
+        else:
+            r_types = [itm.__name__ for itm in real_types]
+            o_types = [itm.__name__ for itm in arg_types]
+            msg = errorMessages.ERROR005(new_name, str(r_types), str(o_types))
+            self.error_queue.append(msg)
+
+        return ans
+
+    def intersection(self, arg_relation):
+
+        return self.diference(self.diference(arg_relation))
 
     def cross(self, arg_relation):
         ''' Handles cartesian product for the Relation datatype.
@@ -245,8 +282,9 @@ class Relation(object):
 
         return ans
 
-    def diference(self, arg_relation):
-        pass
+    # Complex set operators
+
+    # Relational operators
 
     def project(self, attributes):
         ''' Handles projection operation as in relation algebra.
@@ -316,7 +354,7 @@ class Relation(object):
     def join(self, arg_relation):
         pass
 
-    # Internal data handling methods
+    # Auxiliary functions
 
     def get_lazy_type(self, value):
         if BOOL(value).data != '':
