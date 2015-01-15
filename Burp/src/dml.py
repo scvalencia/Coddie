@@ -126,8 +126,6 @@ def set_env(parse):
 def set_runtime(env):
 	pass
 
-
-
 def main():
 	filename = 'dml.burp'
 	parse = parse_file(filename)
