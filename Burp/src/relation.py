@@ -400,27 +400,6 @@ class Relation(object):
     def join(self, arg_relation):
         pass
 
-    # Aux functions
-
-    def get_lazy_type(self, value):
-        if BOOL(value).data != '':
-            return 'BOOL'
-        elif INT(value).data != '':
-            return 'INT'
-        elif REAL(value).data != '':
-            return 'REAL'
-        elif STRING(value).data != '':
-            return 'STRING'
-        elif CHAR(value).data != '':
-            return 'CHAR'
-        elif DATE(value).data != '':
-            return 'DATE'
-        else:
-            return 'CONST'
-
-    def flush(self):
-        self.error_queue = []
-
     def rename(self, old_attributes, new_attributes):
         
         flag = True
@@ -445,6 +424,27 @@ class Relation(object):
                 self.heading[index] = (attribute, same_type)
 
                 i += 1
+
+    # Aux functions
+
+    def get_lazy_type(self, value):
+        if BOOL(value).data != '':
+            return 'BOOL'
+        elif INT(value).data != '':
+            return 'INT'
+        elif REAL(value).data != '':
+            return 'REAL'
+        elif STRING(value).data != '':
+            return 'STRING'
+        elif CHAR(value).data != '':
+            return 'CHAR'
+        elif DATE(value).data != '':
+            return 'DATE'
+        else:
+            return 'CONST'
+
+    def flush(self):
+        self.error_queue = []
 
     def get_attribute_index(self, attribute):
 
