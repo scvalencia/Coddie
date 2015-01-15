@@ -300,7 +300,7 @@ def date_model(number):
 		data = (INT(9824), STRING('Darkes'), INT(38)); t2.insert(data)
 
 		
-		t1.select(lambda x : x[0] != INT(7274)).display()
+		t1.select(lambda x : x[0] != INT(7274) and x[1] == STRING('Molley')).display()
 
 	def menu(number):
 
