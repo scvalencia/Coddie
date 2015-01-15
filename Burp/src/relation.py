@@ -167,8 +167,7 @@ class Relation(object):
         new_name += ''.join(random.choice(seed) for _ in range(5))
 
         # Unique branch of success
-        if real_types == arg_types:
-          
+        if real_types == arg_types:          
 
             relation_attributes = [at for (at, _) in self.heading]
             other_attributes = [at for (at, _) in arg_relation.heading]
@@ -180,10 +179,12 @@ class Relation(object):
             # Appends both tuple set
 
             for itm in self.data:
-                ans.insert(itm)
+                if itm not in ans.tuples:
+                    ans.insert(itm)
 
             for itm in arg_relation.data:
-                ans.insert(itm)
+                if itm not in ans.tuples:
+                    ans.insert(itm)
 
             self.error_queue += ans.error_queue
 
