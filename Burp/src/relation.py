@@ -204,14 +204,15 @@ class Relation(object):
             Both relations should be union compatible, that is, the 
             columns domains must be the same in the same order for
             both relations, in order to guarantee this property, we 
-            check compatibility. Tuples in the intersection must be
-            omitted.
+            check compatibility.
 
             Args:
                 arg_relation (Relation): another relation object
 
             Returns:
-                Relation: union of this relation and the given one
+                Relation: difference of this relation and the given one
+
+        '''
 
 
         real_types = [tp for (_, tp) in self.heading] # Relation's types
@@ -249,6 +250,24 @@ class Relation(object):
         return ans
 
     def intersection(self, arg_relation):
+        ''' Defines the intersection of two relations. Mathematically, 
+            the intersection is defined as tuples both in R1, and in R2.
+            Formally, 
+
+            R \cap P = {t| t in R /\ t in P}
+
+            Both relations should be union compatible, that is, the 
+            columns domains must be the same in the same order for
+            both relations, in order to guarantee this property, we 
+            check compatibility.
+
+            Args:
+                arg_relation (Relation): another relation object
+
+            Returns:
+                Relation: intersection of this relation and the given one
+
+        '''
 
         return self.diference(self.diference(arg_relation))
 
