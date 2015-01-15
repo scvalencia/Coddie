@@ -4,6 +4,6 @@ RELATION employee {
 	salary : INTEGER
 }
 
-INSERT INTO employee (1, 'John', 100);
-INSERT INTO employee (1, 'John', 100);
-INSERT INTO employee (1, 'John', 100);
+INSERT employee (1, 'John', 100);
+INSERT employee (1, 'John', 100);
+INSERT employee (1, 'John', 100);
