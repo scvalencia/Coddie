@@ -20,7 +20,7 @@ representation of it is the bare value, otherwise it is NULL,
 semantics indicates that NULL is an unrecognized value in the 
 type.
 
-Types = [BOOL, INT, REAL, STRING, CHAR, DATE]
+Types = [BOOL, INT, REAL, STRING, CHAR]
 '''
 
 class BOOL(object):
@@ -44,7 +44,6 @@ class BOOL(object):
     def __eq__(self, other):
         return self.data == other.data
 
-
 class INT(object):
     ''' Represents the Integer datatype
     Args:
@@ -65,6 +64,21 @@ class INT(object):
 
     def __eq__(self, other):
         return self.data == other.data
+
+    def __lt__(self, other):
+        return self.data < other.data
+
+    def __le__(self, other):
+        return self.data <= other.data
+
+    def __gt__(self, other):
+        return self.data > other.data
+
+    def __ge__(self, other):
+        return self.data >= other.data
+
+    def __ne__(self, other):
+        return self.data != other.data
 
 class REAL(object):
     ''' Represents the Real datatype
@@ -90,6 +104,21 @@ class REAL(object):
     def __eq__(self, other):
         return self.data == other.data
 
+    def __lt__(self, other):
+        return self.data < other.data
+
+    def __le__(self, other):
+        return self.data <= other.data
+
+    def __gt__(self, other):
+        return self.data > other.data
+
+    def __ge__(self, other):
+        return self.data >= other.data
+
+    def __ne__(self, other):
+        return self.data != other.data
+
 class STRING(object):    
     ''' Represents the String datatype
     Args:
@@ -110,6 +139,21 @@ class STRING(object):
 
     def __eq__(self, other):
         return self.data == other.data
+
+    def __lt__(self, other):
+        return self.data < other.data
+
+    def __le__(self, other):
+        return self.data <= other.data
+
+    def __gt__(self, other):
+        return self.data > other.data
+
+    def __ge__(self, other):
+        return self.data >= other.data
+
+    def __ne__(self, other):
+        return self.data != other.data
 
 class CHAR(object):    
     ''' Represents the Char datatype
@@ -132,34 +176,17 @@ class CHAR(object):
     def __eq__(self, other):
         return self.data == other.data
 
-class DATE(object):
-    ''' Represents the Date datatype
-    Args:
-        value (str): Normal form of a value of the type, it should have the form
-                     yyyy-mm-dd hh:mm:ss.
-    '''
+    def __lt__(self, other):
+        return self.data < other.data
 
-    def __init__(self, value):
-        value = str(value)
-        parts = value.split()
-        slices = parts[0].split('-')
-        hour_parse = parts[1].split(':')
-        if value != '' and len(slices) == 3 and len(hour_parse) == 3:
-            self.year = slices[0]
-            self.month = slices[1]
-            self.day = slices[2]
-            self.hour = hour_parse[0]
-            self.minutes = hour_parse[1]
-            self.seconds = hour_parse[2]
-            self.data = value
-        else:
-            self.data = ''
+    def __le__(self, other):
+        return self.data <= other.data
 
-    def __str__(self):
-        if self.data:
-            return str(self.data)
-        else:
-            return 'NULL'
+    def __gt__(self, other):
+        return self.data > other.data
 
-    def __eq__(self, other):
-        return self.data == other.data
+    def __ge__(self, other):
+        return self.data >= other.data
+
+    def __ne__(self, other):
+        return self.data != other.data
