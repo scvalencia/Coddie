@@ -137,8 +137,14 @@ def set_runtime(env):
 
 	for itm in env:
 		name = itm
+		types = []
+		attributes = []
 		for fields in env[itm]:
+			attribute, burp_type = fields[0], fields[1]
+			types.append(get_types(burp_type))
+			attributes.append(attribute)
 
+		runtime[name] = Relation(name, types, attributes)
 
 def get_types(burp_type):
 	if burp_type == 'BOOLEAN':
@@ -152,16 +158,13 @@ def get_types(burp_type):
 	elif burp_type == 'CHAR':
 		return CHAR
 	elif burp_type == 'DATE':
-		return DATE
-
-	
+		return DATE	
 
 def main():
 	filename = 'dml.burp'
 	parse = parse_file(filename)
-	env = set_env(parse)
-	print env
-	print runtime
+	env = set_env(parse)	
+	set_runtime(env)
 
 if __name__ == '__main__':
 	main()
