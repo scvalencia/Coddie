@@ -14,3 +14,6 @@ Optimization in structure and operations
 Own display facilities
 Best parsing for BURP files (DML)
 DML commands for BURP in the fly
+REL-OPS for datatypes
+Date datatype
+Enum datatype
