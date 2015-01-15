@@ -56,8 +56,6 @@ def date_model(number):
 		data = (INT(5), STRING('Adams'), INT(30), STRING('Athens'))
 		suppliers.insert(data)
 
-		print suppliers.error_queue
-
 		data = (INT(1), STRING('Nut'), STRING('Red'), REAL(12.0), STRING('London'))
 		parts.insert(data)
 
@@ -75,8 +73,6 @@ def date_model(number):
 
 		data = (INT(6), STRING('Cog'), STRING('Red'), REAL(19.0), STRING('London'))
 		parts.insert(data)
-
-		print parts.error_queue
 
 		data = (INT(1), INT(1), INT(300))
 		shipments.insert(data)
@@ -123,19 +119,9 @@ def date_model(number):
 		data = (INT(4), INT(5))
 		shipments.insert(data)
 
-		print shipments.error_queue
-
 		suppliers.flush()
 		parts.flush()
 		shipments.flush()
-
-	def test_display():
-		print
-		suppliers.display()
-		print 
-		parts.display()
-		print
-		shipments.display()
 
 	def test_project():
 		example = suppliers.project(['SNAME'])
@@ -288,41 +274,20 @@ def date_model(number):
 		inter = t1.intersection(t2)
 		inter.display()
 
-		'''
-
-		example = suppliers.project(['CITY']).union(parts.project(['CITY']))
-		example.display()
-
-		print suppliers.error_queue
-		suppliers.flush()
-
-		example = suppliers.project(['SNAME']).union(parts.project(['CITY']))
-		example.display()
-
-		print suppliers.error_queue
-		suppliers.flush()
-
-		rigth = suppliers.project(['SNO'])
-
-		if rigth:
-			left = parts.project(['CITY'])
-			union = rigth.union(left)
-
-			print rigth.error_queue
-			rigth.flush()
-		'''
-
 	def menu(number):
 
 		test_insert()
 
-		if number == 1:
-			test_display()
+		elif number == 1:
+			test_union()
 
 		elif number == 2:
-			test_difference()
+			test_intersection()
 
 		elif number == 3:
+			test_difference()
+
+		elif number == 4:
 			test_cross()
 
 	menu(number)
