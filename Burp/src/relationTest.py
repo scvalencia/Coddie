@@ -302,9 +302,28 @@ def date_model(number):
 		
 		t1.select(lambda x : x[0] != INT(7274) and x[1] == STRING('Molley')).display()
 
+	def test_rename():
+
+		name = 'Graduates'
+		types = [INT, STRING, INT]
+		attributes = ['NUMBER', 'SURNAME', 'AGE']
+		t1 = Relation(name, types, attributes)
+
+		data = (INT(7274), STRING('Robinson'), INT(37)); t1.insert(data)
+		data = (INT(7432), STRING('Molley'), INT(39)); t1.insert(data)
+		data = (INT(9824), STRING('Darkes'), INT(38)); t1.insert(data)
+
+		t1.display()
+
+		t1.rename(['AGE', 'NUMBER'], ['NEW_AGE', 'ID'])
+
+		t1.display()
+
+
+
 	def menu(number):
 
-		#test_insert()
+		test_rename()
 
 		if number == 1:
 			test_union()
@@ -321,6 +340,7 @@ def date_model(number):
 		elif number == 5:
 			test_select()
 
+
 	menu(number)
 
-date_model(5)
+date_model(6)
