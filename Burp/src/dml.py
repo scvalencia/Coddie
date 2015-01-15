@@ -1,6 +1,6 @@
 import sys
 
-env = {}
+runtime = {}
 
 def parse_file(filename):
 	parse = filename.upper().split('.')
@@ -13,6 +13,8 @@ def parse_file(filename):
 		sys.exit()
 
 def set_env(parse):
+
+	env = {}
 
 	name = ''
 	done = False
@@ -30,7 +32,7 @@ def set_env(parse):
 				if i == j: j += 1
 				if parse[j][1].strip():
 					print 'Error while parsing file, expected \'{\', found ' + parse[j][1]
-					print 'Line: ' + str(j)
+					print 'Line: ' + str(j + 1)
 					sys.exit()
 				j += 1
 
@@ -45,7 +47,7 @@ def set_env(parse):
 				variables += parse[i][1].strip()
 				if 'INSERT' in parse[i][1]:
 					print 'Error while parsing the file, expected \'}\', found ' + parse[i][1]
-					print 'Line: ' + str(i)
+					print 'Line: ' + str(i + 1)
 					sys.exit()
 				i += 1
 
@@ -56,7 +58,7 @@ def set_env(parse):
 				attributes = variables.split(';')				
 			except Exception, e:
 				print 'Error while parsing schema for relation ' + name
-				print 'Line: ' + str(i)
+				print 'Line: ' + str(i + 1)
 				sys.exit()
 
 			schema = []
@@ -66,10 +68,11 @@ def set_env(parse):
 					schema.append((p[0].strip(), p[1].strip()))
 				except Exception, e:
 					print 'Error while parsing schema for relation ' + name
-					print 'Line: ' + str(i)
+					print 'Line: ' + str(i + 1)
 					sys.exit()
 
 			env[name] = schema
+			runtime[name] = []
 
 
 		if 'INSERT' in command:
@@ -77,22 +80,42 @@ def set_env(parse):
 
 			if target_relation not in env:
 				print 'Illegal insertion to an undefined relation ' + target_relation
-				print 'Line: ' + str(i)
+				print 'Line: ' + str(i + 1)
 				sys.exit()
 
-			j = i
 			final = False
-			#new_parse = parse[parse[i][1].strip().index(target_relation) + len(target_relation):]
-			#print new_parse
-			print parse[i][1].strip()
-			print parse[i][1].strip().index(target_relation)
-			print parse[i][1].strip().index(target_relation) + len(target_relation)
-			print parse[i][1][parse[i][1].strip().index(target_relation) + len(target_relation):].strip()
+			new_parse = parse[i][1][parse[i][1].strip().index(target_relation) + len(target_relation):].strip()
 			while not final:
-
-
-				if ';' in parse[j][1]:
+				if ';' in new_parse:
 					final = True
+				else:
+					print 'Error while parsing found EOF while expecting \';\' '
+					print 'Line: ' + str(i + 1)
+					sys.exit()
+
+			new_parse = new_parse[:-1]
+			
+			if new_parse[0] != '(':				
+				print 'Error while parsing insertion in ' + target_relation
+				print 'Line: ' + str(i + 1)
+				sys.exit()
+
+			if new_parse[-1] != ')':				
+				print 'Error while parsing insertion in ' + target_relation
+				print 'Line: ' + str(i + 1)
+				sys.exit()
+
+			new_parse = new_parse[1:-1]
+			new_parse = [_.strip() for _ in new_parse.split(',')]
+
+			if len(new_parse) != len(env[target_relation]):								
+				print 'Relation arity is: ' + str(len(target_relation))
+				print 'Line: ' + str(i + 1)
+				sys.exit()
+
+			runtime[target_relation].append(new_parse)
+
+
 
 
 		if i == len(parse) - 1:
@@ -100,13 +123,15 @@ def set_env(parse):
 
 		i += 1
 
+	return env
+
 
 
 def main():
 	filename = 'dml.burp'
 	parse = parse_file(filename)
-	set_env(parse)
-	print env
+	env = set_env(parse)
+	print runtime
 
 if __name__ == '__main__':
 	main()
