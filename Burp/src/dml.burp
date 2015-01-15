@@ -1,0 +1,32 @@
+RELATION employee
+
+
+
+{
+	nr : INTEGER;
+	name : STRING
+}
+
+RELATION employee {	
+	nr : INTEGER;
+	name : STRING;
+	salary : INTEGER
+}
+
+RELATION employee
+
+
+
+{
+	nr : INTEGER;
+	name : STRING
+}
+
+INSERT INTO employee (1, 'John', 100);
+INSERT INTO employee (1, 'John', 100);
+INSERT INTO employee (1, 'John', 100);
+
+RELATION departament {
+	dnr : CHAR;
+	dname : STRING	
+}
