@@ -400,7 +400,7 @@ class Relation(object):
     def join(self, arg_relation):
         pass
 
-    # Auxiliary functions
+    # Aux functions
 
     def get_lazy_type(self, value):
         if BOOL(value).data != '':
@@ -421,8 +421,47 @@ class Relation(object):
     def flush(self):
         self.error_queue = []
 
-    def rename(self, new_name):
-        self.name = new_name
+    def rename(self, old_attributes, new_attributes):
+        
+        flag = True
+
+        for attribute in old_attributes:
+            if attribute not in [at for (at, _) in self.heading]:
+                flag = False
+                break
+
+        if len(old_attributes) != len(new_attributes):
+            flag = False
+
+        if flag:
+
+            i = 0
+            for itm in old_attributes:
+                index = self.get_attribute_index(itm)
+
+                attribute = new_attributes[i]
+                same_type = self.heading[index][0]
+                
+                self.heading[index] = (attribute, same_type)
+
+                i += 1
+
+    def get_attribute_index(self, attribute):
+
+        i = 0
+        for itm in self.heading:
+            value = itm[0]
+            same_type = itm[1]
+
+            if value == attribute:
+                return i
+
+            i += 1
+
+        i = -1
+        return i
+
+
 
     # I/O methods for BURP internal implementation
 
