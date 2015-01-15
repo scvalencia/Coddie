@@ -82,8 +82,12 @@ def set_env(parse):
 
 			j = i
 			final = False
-			new_parse = parse[parse[i][1].strip().index(target_relation) + len(target_relation):]
-			print new_parse
+			#new_parse = parse[parse[i][1].strip().index(target_relation) + len(target_relation):]
+			#print new_parse
+			print parse[i][1].strip()
+			print parse[i][1].strip().index(target_relation)
+			print parse[i][1].strip().index(target_relation) + len(target_relation)
+			print parse[i][1][parse[i][1].strip().index(target_relation) + len(target_relation):].strip()
 			while not final:
 
 
