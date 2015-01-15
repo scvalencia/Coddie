@@ -194,9 +194,3 @@ def main():
 	parse = parse_file(filename)
 	env = set_env(parse)	
 	set_runtime(env)
-
-	for itm in rt_env:
-		rt_env[itm].display()
-
-if __name__ == '__main__':
-	main()
