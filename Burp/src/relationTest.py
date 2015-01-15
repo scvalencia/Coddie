@@ -278,9 +278,33 @@ def date_model(number):
 		inter = t1.intersection(t2)
 		inter.display()
 
+	def test_select():
+
+		name = 'Graduates'
+		types = [INT, STRING, INT]
+		attributes = ['NUMBER', 'SURNAME', 'AGE']
+		t1 = Relation(name, types, attributes)
+
+		data = (INT(7274), STRING('Robinson'), INT(37)); t1.insert(data)
+		data = (INT(7432), STRING('Molley'), INT(39)); t1.insert(data)
+		data = (INT(9824), STRING('Darkes'), INT(38)); t1.insert(data)
+
+
+		name = 'Managers'
+		types = [INT, STRING, INT]
+		attributes = ['NUMBER', 'SURNAME', 'AGE']
+		t2 = Relation(name, types, attributes)
+
+		data = (INT(9297), STRING('Molley'), INT(56)); t2.insert(data)
+		data = (INT(7432), STRING('Molley'), INT(39)); t2.insert(data)
+		data = (INT(9824), STRING('Darkes'), INT(38)); t2.insert(data)
+
+		
+		t1.select(lambda x : x[0] != INT(7274)).display()
+
 	def menu(number):
 
-		test_insert()
+		#test_insert()
 
 		if number == 1:
 			test_union()
@@ -294,6 +318,9 @@ def date_model(number):
 		elif number == 4:
 			test_cross()
 
+		elif number == 5:
+			test_select()
+
 	menu(number)
 
-date_model(1)
+date_model(5)
