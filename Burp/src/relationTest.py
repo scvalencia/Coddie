@@ -201,9 +201,13 @@ def date_model(number):
 		suppliers.flush()
 		rigth = suppliers.project(['CITY'])
 
+		rigth.display()
+
 		if rigth:
 			left = parts.project(['CITY'])
 			union = rigth.union(left)
+
+			union.display()
 
 			if union:
 				union.display()
@@ -278,7 +282,7 @@ def date_model(number):
 
 		test_insert()
 
-		elif number == 1:
+		if number == 1:
 			test_union()
 
 		elif number == 2:
@@ -292,4 +296,4 @@ def date_model(number):
 
 	menu(number)
 
-date_model(2)
+date_model(1)

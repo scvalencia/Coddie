@@ -140,7 +140,7 @@ class Relation(object):
             the union is defined as tuples both in R1, and in R2.
             Formally, 
 
-            R U P = {t| t in R \/ t in R}
+            R U P = {t| t in R \/ t in P}
 
             Both relations should be union compatible, that is, the 
             columns domains must be the same in the same order for
@@ -179,12 +179,10 @@ class Relation(object):
             # Appends both tuple set
 
             for itm in self.data:
-                if itm not in ans.tuples:
-                    ans.insert(itm)
+                ans.insert(itm)
 
             for itm in arg_relation.data:
-                if itm not in ans.tuples:
-                    ans.insert(itm)
+                ans.insert(itm)
 
             self.error_queue += ans.error_queue
 
@@ -197,6 +195,24 @@ class Relation(object):
         return ans
 
     def diference(self, arg_relation):
+        ''' Defines the difference of two realtions. Mathematically, 
+            the difference is defined as tuples in R1 but not in R2.
+            Formally, 
+
+            R \ P = {t| t in R /\ t not in P}
+
+            Both relations should be union compatible, that is, the 
+            columns domains must be the same in the same order for
+            both relations, in order to guarantee this property, we 
+            check compatibility. Tuples in the intersection must be
+            omitted.
+
+            Args:
+                arg_relation (Relation): another relation object
+
+            Returns:
+                Relation: union of this relation and the given one
+
 
         real_types = [tp for (_, tp) in self.heading] # Relation's types
         arg_types = [tp for (_, tp) in arg_relation.heading] # Other relation's types
