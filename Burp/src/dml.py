@@ -1,6 +1,15 @@
 import sys
 import os
 
+from relation import Relation
+from dataTypes import BOOL
+from dataTypes import INT
+from dataTypes import REAL
+from dataTypes import STRING
+from dataTypes import CHAR
+from dataTypes import DATE
+
+
 runtime = {}
 
 def parse_file(filename):
@@ -125,12 +134,33 @@ def set_env(parse):
 	return env
 
 def set_runtime(env):
-	pass
+
+	for itm in env:
+		name = itm
+		for fields in env[itm]:
+
+
+def get_types(burp_type):
+	if burp_type == 'BOOLEAN':
+		return BOOL
+	elif burp_type == 'INTEGER':
+		return INT
+	elif burp_type == 'REAL':
+		return REAL
+	elif burp_type == 'STRING':
+		return STRING
+	elif burp_type == 'CHAR':
+		return CHAR
+	elif burp_type == 'DATE':
+		return DATE
+
+	
 
 def main():
 	filename = 'dml.burp'
 	parse = parse_file(filename)
 	env = set_env(parse)
+	print env
 	print runtime
 
 if __name__ == '__main__':
