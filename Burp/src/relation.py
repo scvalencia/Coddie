@@ -404,8 +404,10 @@ class Relation(object):
         
         flag = True
 
+        real_attriutes = [at for (at, _) in self.heading]
+        
         for attribute in old_attributes:
-            if attribute not in [at for (at, _) in self.heading]:
+            if attribute not in real_attriutes:
                 flag = False
                 break
 
