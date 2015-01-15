@@ -379,7 +379,26 @@ class Relation(object):
 
         return ans
 
-    def select(self, columns, rel_ops, values, connectors):
+    def select(self, foo):
+
+        ans = None
+        seed = string.digits
+        ans_name = 'SelectionOn'
+        ans_name += self.name.lower().capitalize() + '-'
+        ans_name += ''.join(random.choice(seed) for _ in range(5))
+
+        ans_types = [tp for (_, tp) in self.heading]
+        ans_attributes = [at for (at, _) in self.heading]
+
+        ans = Relation(ans_name, ans_types, ans_attributes)
+
+        for itm in self.data:
+            if foo(itm):
+                ans.insert(itm)
+
+        return ans
+
+    def select_aux(self):
         pass
 
     # Compound relational algebra operations
