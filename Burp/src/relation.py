@@ -37,7 +37,6 @@ from dataTypes import REAL
 from dataTypes import CHAR
 from dataTypes import BOOL
 from dataTypes import STRING
-from dataTypes import DATE
 
 # Error messages associated with relations
 import errorMessages
@@ -397,11 +396,6 @@ class Relation(object):
                 ans.insert(itm)
 
         return ans
-
-    def select_aux(self):
-        pass
-
-    # Compound relational algebra operations
 
     def join(self, arg_relation):
         pass
