@@ -9,3 +9,7 @@ File compilation.
 CSV/SQL/Excel to BURP.
 Grammar.
 Gitnore.
+Persistency
+Optimization in structure and operations
+Own display facilities
+Best parsing for BURP files (DML)
