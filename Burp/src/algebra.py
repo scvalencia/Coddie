@@ -21,3 +21,6 @@ def project(r1, attributes):
 
 def select(r1, foo):
 	return r1.select(foo)
+
+def join(r1, r2):
+	return r1.join(r2)
