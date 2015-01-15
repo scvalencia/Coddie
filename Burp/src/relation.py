@@ -1,15 +1,17 @@
 ''' relation.py
 
-This module defines the class of a relation, the main structure in
+This module defines the type of a relation, the main structure in
 BURP. Informally, a relation can be viewed as a structure with two
 parts, a heading and a body. The heading is a collection of typed 
 attributes, while the body is a collection of typed tuples whose i'th
 entry has the type of the i'th attribute. The body is a set, so it must
-avoid duplicates, the length of the hading is the arity of a relation, 
+avoid duplicates, the length of the heading is the arity of a relation, 
 while the length of the body is said to be the cardinality of the 
-relation. This module also defines the semantics of BURP, that is,
+relation. 
+
+This module also defines the semantics of BURP, that is,
 the procedual abstraction of an operation in the relational algebra.
-Compound operatons are expressed using base operations, if optimization
+Compound operations are expressed using base operations, if optimization
 is not specified.
 
 A relation is created by indicating the typed body, and a name.
@@ -17,7 +19,7 @@ A relation must allow tuples to be inserted, and should
 handle some abstraction for relational algebra operations, the supported
 basic operations are:
 
-[SELECTION, PROJECTION, UNION, DIFFERENCE, CARTESIAN-PRODUCT]
+[SELECTION, PROJECTION, UNION, DIFFERENCE, PRODUCT]
 
 Compound operations based on the base ones are:
 
@@ -25,34 +27,35 @@ Compound operations based on the base ones are:
 
 '''
 
-import tabulate
-import string
-import random
+import tabulate # For display facilities
+import string # For string handling
+import random # Internal naming of emporal relations
 
+# BURP native datatypes
 from dataTypes import INT
 from dataTypes import REAL
 from dataTypes import CHAR
 from dataTypes import BOOL
 from dataTypes import STRING
 from dataTypes import DATE
+
+# Error messages associated with relations
 import errorMessages
 
 class Relation(object):
     ''' Represents the kernel of BURP, and provides abstractions for operations
+    The internal representation is coded in order to define operations 
+    originally defined an explained by Codd.
     Args:
         name (str): the name of the relation
-        types (dataType): the types of the columns from left to right
-        attributes (str): the names of the columns from left to right
+        types ([dataType]): the types of the columns from left to right
+        attributes ([str]): the names of the columns from left to right
 
     '''
 
     def __init__(self, name, types, attributes):
-        ''' Internal representation of a relation described as in Codd,
-            is done using sets, and dictionaries. Attributes are internally
-            handlead as uppercase letters
-        '''
 
-         # Error handling
+        # Error handling
         self.error_queue = []
 
         # Relation name
@@ -82,7 +85,7 @@ class Relation(object):
     # Modeling methods
 
     def insert(self, to_insert):
-        ''' Handles data insertion on a relations, the insertion
+        ''' Handles data insertion on relations, the insertion
             is successful iff the object is not already in the body
             and the desired types are the relation types defined
             in self.types. If the insertion failed, related information
@@ -133,7 +136,7 @@ class Relation(object):
     # Base relational algebra operations, sets operations
 
     def union(self, arg_relation):
-        ''' Defines the union of two realtions, mathematically, 
+        ''' Defines the union of two realtions. Mathematically, 
             the union is defined as tuples both in R1, and in R2.
             Formally, 
 
@@ -263,13 +266,9 @@ class Relation(object):
         new_name += 'Cross' + arg_relation.name.lower().capitalize()
         new_name += ''.join(random.choice(seed) for _ in range(5))
 
-        relation_attributes = [at for (at, _) in self.heading]
-        other_attributes = [at for (at, _) in arg_relation.heading]
+        relation_attributes = [self.name + '.' + at for (at, _) in self.heading]
+        other_attributes = [arg_relation.name + '.' + at for (at, _) in arg_relation.heading]
         new_attributes = relation_attributes + other_attributes
-
-        # Should rename repeated attributes names!!!
-        #attributes_map = [(_ in relation_attributes and _ in other_attributes) for _ in new_attributes]
-        #print attributes_map
 
         ans = Relation(new_name, new_types, new_attributes)
 
@@ -281,8 +280,6 @@ class Relation(object):
                 ans.insert(final_tuple)
 
         return ans
-
-    # Complex set operators
 
     # Relational operators
 
