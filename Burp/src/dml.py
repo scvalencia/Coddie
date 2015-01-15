@@ -116,14 +116,15 @@ def set_env(parse):
 			runtime[target_relation].append(new_parse)
 
 
-
-
 		if i == len(parse) - 1:
 			done = True
 
 		i += 1
 
 	return env
+
+def set_runtime(env):
+	pass
 
 
 
