@@ -11,6 +11,7 @@ from dataTypes import DATE
 
 
 runtime = {}
+rt_env = {}
 
 def parse_file(filename):
 	parse = filename.upper().split('.')
@@ -143,8 +144,36 @@ def set_runtime(env):
 			attribute, burp_type = fields[0], fields[1]
 			types.append(get_types(burp_type))
 			attributes.append(attribute)
+			
 
-		runtime[name] = Relation(name, types, attributes)
+		rt_env[name] = Relation(name, types, attributes)
+		add_fields(name, types, attributes)
+
+def add_fields(name, types, attributes):
+	obj = rt_env[name]
+	records = runtime[name]
+	
+	for itm in records:
+		
+		i = 0
+		tpl = []
+
+		for atom in itm:
+
+			expected_type = types[i]
+
+			if str(expected_type(atom)) == 'NULL':				
+				print 'Error while inserting ' + str(itm) + ' into ' +  name
+				print 'Expected type was ' + str(expected_type)
+				sys.exit()
+
+			else:
+				tpl.append(expected_type(atom))
+
+			i += 1
+
+		obj.insert(tpl)
+
 
 def get_types(burp_type):
 	if burp_type == 'BOOLEAN':
@@ -165,6 +194,9 @@ def main():
 	parse = parse_file(filename)
 	env = set_env(parse)	
 	set_runtime(env)
+
+	for itm in rt_env:
+		rt_env[itm].display()
 
 if __name__ == '__main__':
 	main()
