@@ -1,0 +1,4 @@
+(env)
+(display relation_name)
+(create relation_name (types_list) (argument_list))
+(insert relation_eval (value_list))
