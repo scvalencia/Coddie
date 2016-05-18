@@ -1,9 +1,0 @@
-RELATION employee {	
-	nr : INTEGER;
-	name : STRING;
-	salary : INTEGER
-}
-
-INSERT employee (1, 'John', 100);
-INSERT employee (1, 'John', 100);
-INSERT employee (1, 'John', 100);
