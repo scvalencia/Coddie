@@ -199,5 +199,3 @@ def parsefile(filename):
 			return
 
 	return relations
-
-parsefile('dml.burp')
