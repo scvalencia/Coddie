@@ -1,0 +1,76 @@
+(PROJECT (name rating) S2)
+
+(SELECT (> rating 5) S2)
+
+(PROJECT (age) S2)
+
+(PROJECT (name rating) 
+	(SELECT (> rating 5) S2)
+)
+
+(UNION S1 S2)
+
+(INTER S1 S2)
+
+(CROSS S1 S2)
+
+(DIFF S1 S2)
+
+(SET R P)
+
+(RENAME (att1 att2 att3) (natt1 natt2 natt3) S1)
+
+(JOIN S1 S2)
+
+(JOIN (= s1 s2) S1 S2)
+
+(JOIN (< s1 s2) S1 S2)
+
+(JOIN S1 S2)
+
+(DIV S1 S2)
+
+(PROJECT (sname) 
+	(JOIN 
+		(SELECT 
+			(= bid 103) reserves) 
+			sailors
+		)
+	)
+)
+
+(PROJECT (sname) 
+	(SELECT (= bid 103) (JOIN reserves sailors)))
+
+(PROJECT (sname) 
+	(JOIN (SELECT (= bid 103) reserves) sailors)))
+
+(PROJECT (name) 
+	(PROJECT (sid)
+		(JOIN
+			(JOIN
+				(PROJECT bid 
+					(SELECT (= color 'red') boats)
+				) 
+				reserves
+			) 
+			sailors
+		)
+	)
+)
+
+(PROJECT (color) 
+	(JOIN 
+		(JOIN 
+			(SELECT (= sname 'Lubber') sailors) 
+			reserves
+		) 
+		boats
+	)
+)
+
+(PROJECT (sname) 
+	(JOIN sailors reserves)
+)
+
+(SELECT (AND (= name 'philip') (> id 324)) S1)
