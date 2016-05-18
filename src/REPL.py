@@ -1,5 +1,7 @@
 import sys
+import relation
 import dmlparser
+import datatypes
 
 URL = 'https://github.com/scvalencia/Burp'
 VERSION = '0.1.1'
@@ -14,8 +16,6 @@ WELCOME_MESSAGE = ('\n\n-----------	|	BURP - An Extended Interpreter of the Rela
 						'-----------	|	Version %s (%s)\n') % (URL, VERSION, RELEASE_DATE)
 
 EXIT_MESSAGE = '[Process completed]'
-
-ERROR01 = 'EOL reached while scanning string literal'
 
 env = {}
 
@@ -45,6 +45,8 @@ def _parse(tokens):
         return str(token)
 
 def _normalize(tokens):
+	ERROR01 = 'EOL reached while scanning string literal'
+	
 	i = 0
 	actualtokens = []
 	while i < len(tokens):
@@ -110,12 +112,14 @@ def _read():
 	tokens = query.replace('(', ' ( ').replace(')', ' ) ').split()
 	return _normalize(_parse(tokens))
 
-def _eval_ioinstruction(x):
+def _eval_io_instruction(x):
 	global env
 
-	if x[0] == 'save':
+	command = x[0]
+
+	if command == 'save':
 		pass
-	elif x[0] == 'fetch':
+	elif command == 'fetch':
 		filename = x[1].replace('\'', '')
 		try:
 			_println(filename)
@@ -124,39 +128,123 @@ def _eval_ioinstruction(x):
 			_println('Error while loading file \'%s\'' % filename)
 			_print('')
 			env = {}
-	elif x[0] == 'display':
+	elif command == 'display':
 		relation = x[1]
 		print
 		env[relation].display()
 		print
-	elif x[0] == 'env':
+	elif command == 'env':
 		sys.stdout.flush()
 		for relation in env:
 			envmessage = relation + ' : ' + str(tuple(env[relation].types))
 			_println(envmessage)
-			sys.stdout.write(envmessage + '\n')
 
-def _eval(x):
+def _eval_model_instruction(query):
 	global env
 
-	instructions = {'IO' : ['save', 'fetch', 'display', 'env']}
+	ERROR01 = 'Error while parsing create statement, malformed statement'
+	ERROR02 = 'Wrong %s name %s while creating relation'
+	ERROR03 = ('Error while creating relation %s. Arity of types, must be the same as '
+					'arity of attributes')
+	ERROR04 = 'Error while creating relation: %s is not a valid type'
+	ERROR05 = 'Error while parsing insert statement, malformed statement'
+	ERROR06 = 'Error while inserting tuple in relation, unbound relation %s'
+	ERROR07 = ('Error while inserting tuple into the %s relation.'
+		'Relation\'s arity is %d, but receive a %d-tuple')
+	ERROR08 = ('Error while inserting tuple into the %s relation'
+		'\n\tRelation\'s type is: %s.\n\tTuple\'s type is: %s')
 
-	if x[0] in instructions['IO']:
-		_eval_ioinstruction(x)
-	elif x[0] == 'exit':
+	def _handle_name(name, string_type):
+		condition = (lambda ch : not ch.isalpha()) if string_type == \
+				'relation' else (lambda ch : not ch.isalpha() or not ch.islower())
+
+		for ch in name:
+			if condition(ch): 
+				_println(ERROR02 % (string_type, name))
+				return False
+
+		return True
+
+	def _create():
+		if len(query) != 4:
+			_println(ERROR01)
+			return
+
+		relname, types, attributes = query[1], query[2], set(query[3])
+		if not _handle_name(relname, 'relation'):
+			return
+
+		if len(types) != len(attributes):
+			_println(str(ERROR03 % relname))
+			return
+
+		for t in types:
+			if t not in dmlparser.TYPES:
+				_println(ERROR04 % t)
+				return
+
+		env[relname] = relation.Relation(relname, types, attributes)
+		return relname
+
+	def _insert():
+		if len(query) != 3:
+			_println(ERROR05)
+			return
+
+		relation, values = _eval(query[1]), query[2]
+		if relation not in env:
+			_println(ERROR06)
+			return
+
+		relation = env[relation]
+		if len(values) != relation.arity:
+			_println(ERROR07 % (relation.name, relation.arity, len(values)))
+			return
+
+		reltype = [t for _, t in relation.schema]
+		tpltype = [datatypes.infertype(i) for i in values]
+
+		if reltype != tpltype:
+			_println(ERROR08 % (relation.name, tuple(reltype), tuple(tpltype)))
+			return
+
+		relation.insert(values)
+
+	command = query[0]
+
+	if command == 'create':	return _create()
+	elif command == 'insert': return _insert()
+
+
+def _eval(query):
+	global env
+
+	ERROR01 = 'Unbound exit call'
+
+	instructions = {'IO' : ['save', 'fetch', 'display', 'env'],
+					'MODEL' : ['create', 'insert']}
+
+	command = query[0]
+	
+	if command in instructions['IO']: _eval_io_instruction(query)
+	elif command in instructions['MODEL']: return _eval_model_instruction(query)
+	elif command == 'exit':
+		if len(query) != 1:
+			_println(ERROR01)
+			return
 		_println('\n' + EXIT_MESSAGE )
 		exit()
 
-def main():
+def REPL():
 
 	print WELCOME_MESSAGE 
 
 	while True:
 		ast = _read()
 		if len(ast) != 0:
-			_println(str(ast))
+			# DEBUGGING: _println(str(ast))
 			_eval(ast)
 		_print('')
 
 if __name__ == '__main__':
-	main()
+	REPL()
