@@ -74,3 +74,15 @@
 )
 
 (SELECT (AND (= name 'philip') (> id 324)) S1)
+
+(select 
+	relation 
+	(and 
+		(= name "Pepito") 
+		(<= age 45) 
+		(or 
+			(= religion "muslim") 
+			(<> lastname "Curry")
+		)
+	)
+)
