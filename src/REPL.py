@@ -4,7 +4,9 @@ import dmlparser
 import datatypes
 
 URL = 'https://github.com/scvalencia/Burp'
+
 VERSION = '0.1.1'
+
 RELEASE_DATE = '2016-04-17'
 
 WELCOME_MESSAGE = ('\n\n-----------	|	BURP - An Extended Interpreter of the Relational Algebra\n'
@@ -17,108 +19,63 @@ WELCOME_MESSAGE = ('\n\n-----------	|	BURP - An Extended Interpreter of the Rela
 
 EXIT_MESSAGE = '[Process completed]'
 
+PROMPT = '>>> '
+
+''' The envirment, which is supposed to be loaded from the file '''
 env = {}
 
 def _print(str):
+	''' Prints the given string using low level features provided
+		by the Python's standard library.
+	'''
+
+	#################################################################################
+	# _print
+	#################################################################################
+
 	sys.stdout.flush()
 	sys.stdout.write(str)
 
+	#################################################################################
+	# _print
+	#################################################################################
+
 def _println(str):
+	''' Prints the given string, being supported bu _print, adding
+		a new line at the end of the message.
+	'''
+
+	#################################################################################
+	# _println
+	#################################################################################
+
 	_print(str + '\n')
 
-def _parse(tokens):
-    if len(tokens) == 0:
-    	# Syntax error: unexpected EOF while reading query
-    	pass
-
-    token = tokens.pop(0)
-    if '(' == token:
-        ast = []
-        while tokens[0] != ')':
-            ast.append(_parse(tokens))
-        tokens.pop(0)
-        return ast
-    elif ')' == token:
-		# Syntax error: unexpected ')' while reading program
-		pass
-    else:
-        return str(token)
-
-def _normalize(tokens):
-	ERROR01 = 'EOL reached while scanning string literal'
-	
-	i = 0
-	actualtokens = []
-	while i < len(tokens):
-		token = tokens[i]
-		if isinstance(token, list):
-			actualtokens.append(_normalize(token))
-			i += 1
-		else:
-			if token[0] == '"' and token[-1] != '"':
-				current = token + ' '
-				j = i + 1
-				flag = True
-				while flag:
-					try:
-						next_token = tokens[j]
-					except:
-						_println(ERROR01)
-						break
-					if next_token[-1] != '"':
-						current += next_token + ' '
-					else:
-						current += next_token
-						flag = False
-					j = j + 1
-				i = j + 1
-				actualtokens.append(current)
-			elif token[0] == token[-1] == '"':
-				actualtokens.append(token)
-				i += 1
-			else:
-				actualtokens.append(token)
-				i += 1
-
-	return actualtokens
-
-def _read():
-	query = ''
-	ch = ''
-	stack = []
-	balanced = False
-	balance = 0
-	level = 0
-	print '>>> ',
-	while not balanced:
-		ch = sys.stdin.read(1)
-		if ch != '\n':
-			if ch == '(': balance += 1
-			elif ch == ')':
-				balance -= 1
-				if balance < 0: print 'error'; break
-			balanced = balance == 0
-			query += ch
-			if balanced: break
-		else:
-			if query.strip() == '': return []
-			level += 1
-			_print('\t' * level)
-			query += ' '
-
-	sys.stdin.read(1)
-	query = query.strip()
-	if query == '': return []
-	tokens = query.replace('(', ' ( ').replace(')', ' ) ').split()
-	return _normalize(_parse(tokens))
+	#################################################################################
+	# _println
+	#################################################################################
 
 def _eval_io_instruction(x):
+	''' Evaluates some expression in the IO category of evaluation,
+		that is, expressions that interacts with the world, that is, 
+		to save the enviroment or part of it to a file, to retrieve 
+		relations from a file, to display a relation, or to show the 
+		current state of the enviroment.
+	'''
+
+	#################################################################################
+	# _eval_io_instruction
+	#################################################################################
+
 	global env
 
 	command = x[0]
 
+	# TODO, comment it, and check syntax and semantics
 	if command == 'save':
 		pass
+
+	# TODO, comment it, and check syntax and semantics
 	elif command == 'fetch':
 		filename = x[1].replace('\'', '')
 		try:
@@ -128,123 +85,469 @@ def _eval_io_instruction(x):
 			_println('Error while loading file \'%s\'' % filename)
 			_print('')
 			env = {}
+
+	# TODO, comment it, and check syntax and semantics
 	elif command == 'display':
 		relation = x[1]
 		print
 		env[relation].display()
 		print
+
+	# TODO, comment it, and check syntax and semantics
 	elif command == 'env':
 		sys.stdout.flush()
 		for relation in env:
 			envmessage = relation + ' : ' + str(tuple(env[relation].types))
 			_println(envmessage)
 
-def _eval_model_instruction(query):
-	global env
+	#################################################################################
+	# _eval_io_instruction
+	#################################################################################
 
-	ERROR01 = 'Error while parsing create statement, malformed statement'
-	ERROR02 = 'Wrong %s name %s while creating relation'
-	ERROR03 = ('Error while creating relation %s. Arity of types, must be the same as '
-					'arity of attributes')
-	ERROR04 = 'Error while creating relation: %s is not a valid type'
-	ERROR05 = 'Error while parsing insert statement, malformed statement'
-	ERROR06 = 'Error while inserting tuple in relation, unbound relation %s'
-	ERROR07 = ('Error while inserting tuple into the %s relation.'
-		'Relation\'s arity is %d, but receive a %d-tuple')
-	ERROR08 = ('Error while inserting tuple into the %s relation'
-		'\n\tRelation\'s type is: %s.\n\tTuple\'s type is: %s')
+def _eval_model_instruction(query):
+	''' Evaluates some expression in the MODEL category of evaluation,
+		that is, expressions that manipulate a single relation by 
+		modeling it, or altering it by deleting tuples on it, 
+		or inserting tuples on it, also to assign relations to names, 
+		or rename attributes from a relation, etc.
+	'''
 
 	def _handle_name(name, string_type):
+		''' Checks whether or not, a given string match the specification
+			for an attribute name, or a relation name. A relation name, must
+			contain letters, while an attribute name, must contain, jusr lowercase
+			letters
+		'''
+
+		#################################################################################
+		# _handle_name
+		#################################################################################
+
+		global env
+
+		ERROR01 = 'Wrong %s name %s while creating relation'
+
+		# It is a relation, or an attribute?
 		condition = (lambda ch : not ch.isalpha()) if string_type == \
 				'relation' else (lambda ch : not ch.isalpha() or not ch.islower())
 
+		# Hor each character, check the condition
 		for ch in name:
 			if condition(ch): 
-				_println(ERROR02 % (string_type, name))
+				_println(ERROR01 % (string_type, name))
 				return False
 
 		return True
 
+		#################################################################################
+		# _handle_name
+		#################################################################################
+
 	def _create():
+		''' Create a tuple, and add it to the enviroment, given the name, the
+			type of it and the attributes or schema
+
+			(create relname (t1 ... tn) (a1 ... am))
+				where relname is a valid string representing the name of the new
+				relation ([A-Z][a-z])*. n, m are integers, and ti, represents the
+				type of the ith attribute in the schema (ai). For succesfull 
+				application, n has to be equal to m.
+
+				Each type could be one of:
+					STRING, INTEGER, CHAR, BOOL, REAL
+
+				A valid attribute name matches ([a-z]*)
+
+			Adds the relation to the enviroment, and returns an expression, that
+			evaluates to a relation
+		'''
+
+		#################################################################################
+		# _create
+		#################################################################################
+
+		global env
+
+		ERROR01 = 'Error while parsing create statement, malformed statement'
+		ERROR02 = ('Error while creating relation %s. Arity of types, must be the same as '
+					'arity of attributes')
+		ERROR03 = 'Error while creating relation %s : %s is not a valid type'
+		ERROR04 = 'Error while creating relation %s : arity must be bigger than zero'
+
 		if len(query) != 4:
-			_println(ERROR01)
+			_println(ERROR01)								# Malformed create command
 			return
 
+		# The arguments, the name of the new relation, its types and attributes
 		relname, types, attributes = query[1], query[2], set(query[3])
-		if not _handle_name(relname, 'relation'):
+
+		if not _handle_name(relname, 'relation'):			# Wrong identifier for relation's name
 			return
 
-		if len(types) != len(attributes):
-			_println(str(ERROR03 % relname))
+		if len(types) == 0 or len(attributes) == 0:			# Empty schema or empty types
+			_println(str(ERROR04 % relname))
+			return 
+
+		if len(types) != len(attributes):					# Arity mismatch
+			_println(str(ERROR02 % relname))
 			return
 
-		for t in types:
+		for i, _ in enumerate(types):						# Check for each type, and attribute
+			t, a = types[i], attributes[i]
+
 			if t not in dmlparser.TYPES:
-				_println(ERROR04 % t)
+				_println(ERROR03 % (relname, t))
 				return
 
+			if not _handle_name(a, 'attribute'):
+				return
+
+		# Finally, insert the relation in the enviroment, and return its name
 		env[relname] = relation.Relation(relname, types, attributes)
 		return relname
 
+		#################################################################################
+		# _create
+		#################################################################################
+
 	def _insert():
-		if len(query) != 3:
+		''' Insert a tuple in a relation, the syntax and semantics, is
+			specified as follows:
+
+			(insert rel (val1 ... valn))
+				where rel, is the name of a relation, or an expression
+				that evaluates to a relation the name of a relation, evaluates
+				to a relation.
+
+				val1 ... val, is a list of n values which forms a tuple to insert
+				in the relation that evaluates to rel
+		'''
+
+		#################################################################################
+		# _insert
+		#################################################################################
+
+		global env
+
+		ERROR01 = 'Error while parsing insert statement, malformed statement'
+		ERROR02 = 'Error while inserting tuple in relation, unbound relation %s'
+		ERROR03 = ('Error while inserting tuple into the %s relation. '
+			'Relation\'s arity is %d, but receive a %d-tuple')
+		ERROR04 = ('Error while inserting tuple into the %s relation'
+			'\n\tRelation\'s type is: %s.\n\tTuple\'s type is: %s')
+		ERROR05 = ('The given expression, does not evaluates to a relation')
+
+		if len(query) != 3:						
+			_println(ERROR01)								# Malformed insert command
+			return
+
+		# The arguments, the evaluation of relation, and the tuple to insert
+		relation, values = _eval(query[1]), query[2]
+
+		if relation == None:								# Unsuccessfule evaluation
 			_println(ERROR05)
 			return
 
-		relation, values = _eval(query[1]), query[2]
-		if relation not in env:
-			_println(ERROR06)
+		if relation not in env:								# There's not such relation in env
+			_println(ERROR02 % relation)
+			return		
+
+		relation = env[relation]							# The relation object
+		if len(values) != relation.arity:					# Arity mismatch leads to an error
+			_println(ERROR03 % \
+			 		(relation.name, relation.arity, len(values)))
 			return
 
-		relation = env[relation]
-		if len(values) != relation.arity:
-			_println(ERROR07 % (relation.name, relation.arity, len(values)))
+		reltype = [t for _, t in relation.schema]			# The type of the relation
+		tpltype = [datatypes.infertype(i) for i in values]	# The type of the given tuple
+
+		if reltype != tpltype:								# Type mismatch leads to an error
+			_println(ERROR04 %\
+					(relation.name, tuple(reltype), tuple(tpltype)))
 			return
 
-		reltype = [t for _, t in relation.schema]
-		tpltype = [datatypes.infertype(i) for i in values]
+		relation.insert(values)								# Finally, if this point is reached
+															# insert the tuple, via the kernel
 
-		if reltype != tpltype:
-			_println(ERROR08 % (relation.name, tuple(reltype), tuple(tpltype)))
-			return
+		#################################################################################
+		# _insert
+		#################################################################################
 
-		relation.insert(values)
+	#################################################################################
+	# _eval_model_instruction
+	#################################################################################
 
-	command = query[0]
+	command = query[0]				# The command, that determines the evaluation
 
-	if command == 'create':	return _create()
-	elif command == 'insert': return _insert()
+	if command == 'create':			# Create a relation
+		return _create()
+
+	elif command == 'insert': 		# Insert a tuple in a relation
+		return _insert()
+
+	#################################################################################
+	# _eval_model_instruction
+	#################################################################################
 
 
 def _eval(query):
+	''' Evaluates a query depending its kind. That is, the first 
+		word of the tokens processed by _read(). The query can alter
+		the state of the enviroment, the state of a relation, or retrieve
+		information out of the relations using operations whose semantics
+		is the same as in relational algebra (Codd's one).
+
+		A query can be of the following kinds:
+
+			IO : interact with the world, that is, to save the enviroment or part
+			of it to a file, to retrieve relations from a file, to display a relation,
+			or to show the state of the enviroment.
+
+			MODEL: manipulate a single relation by modeling it, or altering it by
+			deleting tuples on it, or inserting tuples on it, also to assign relations
+			to names, or rename attributes from a relation.
+
+		The responsability for each kind of evaluation, is delegated to other
+		functions.
+	'''
+
+	#################################################################################
+	# _eval
+	#################################################################################
+
 	global env
 
 	ERROR01 = 'Unbound exit call'
 
-	instructions = {'IO' : ['save', 'fetch', 'display', 'env'],
-					'MODEL' : ['create', 'insert']}
+	# Instructions classification
+	instructions = {
+					'IO' : 
+						['save', 'fetch', 'display', 'env'],
 
-	command = query[0]
+					'MODEL' : 
+						['create', 'insert'],
+					}
+
+	if query == []:
+		return None
+
+	command = query[0]							# The command, that determines the evaluation
 	
-	if command in instructions['IO']: _eval_io_instruction(query)
-	elif command in instructions['MODEL']: return _eval_model_instruction(query)
-	elif command == 'exit':
-		if len(query) != 1:
+	if command in instructions['IO']: 			# IO operations
+		_eval_io_instruction(query)
+
+	elif command in instructions['MODEL']: 		# MODEL operations
+		return _eval_model_instruction(query)
+
+	elif type(query) == str:					# A symbol, or an atom
+		return query
+
+	elif command == 'exit':						# Exit from the Burp system
+
+		if len(query) != 1:						# Malformed exit command
 			_println(ERROR01)
 			return
+
 		_println('\n' + EXIT_MESSAGE )
 		exit()
 
+	#################################################################################
+	# _eval
+	#################################################################################
+
+def _read():
+	''' Read the query, and return an internal representation of it.
+		Dynamically forms the query, which is given as an s-expression.
+		The input process finishes when the input is balanced. Once that
+		happens, the query must be parsed, and that internal representation
+		is the return value
+	'''
+
+	def __normalize(tokens):
+		''' Return an internal representation equivalent to that
+			given by the s-expression parsed by __parse, with the,
+			difference that __normalize takes into account strings
+			with spaces, such as "This is an example". For example
+			for the next query, the result by __parse and __normalize 
+			is exposed:
+
+			(select relation (and (= name "Edgar Codd")))
+
+			__parse:
+				['select', 'relation', ['and', ['=', 'name', '"Edgar', 'Codd"']]]
+			__normalize:
+				['select', 'relation', ['and', ['=', 'name', '"Edgar Codd"']]]
+
+			So the string "Edgar code", could be treated as an atom
+		'''
+
+		#################################################################################
+		# __normalize
+		#################################################################################
+
+		ERROR01 = 'EOL reached while scanning string literal'
+
+		i = 0
+		actualtokens = []	
+		# Traverse tokens and process strings and atoms								
+		while i < len(tokens):
+			token = tokens[i]								# Current token
+			if isinstance(token, list):						# If is a list, then use recursion
+				actualtokens.append(__normalize(token))
+				i += 1
+			else:											# Otherwise, could be an atom, a string
+															# without spaces, or a string with spaces
+
+				if token[0] == '"' and token[-1] != '"':
+					# A string with spaces
+					current, j, flag = token + ' ', i + 1, True
+
+					while flag:
+
+						try: next_token = tokens[j]
+						except: _println(ERROR01); break
+
+						if next_token[-1] != '"':
+							current += next_token + ' '
+						else:
+							current += next_token
+							flag = False
+
+						j = j + 1
+
+					actualtokens.append(current)
+					i = j
+
+				else:
+					# A string without spaces, 
+					# or an atom, or an identifier, or a symbol
+					actualtokens.append(token)
+					i += 1
+
+		return actualtokens
+
+		#################################################################################
+		# __normalize
+		#################################################################################
+
+	def __parse(tokens):
+		''' Return an internal representation equivalent to that
+			given by the s-expression parsed in the parameters,
+			every internal s-expression is represented by a list,
+			an atom, is represented by itself, and that is applied
+			recursively. It avoids handling string separated with
+			'"', that's the job of __normalize()
+		'''
+
+		#################################################################################
+		# __parse
+		#################################################################################
+
+		ERROR01 = 'Unexpected EOF while reading query'
+		ERROR02 = 'Unexpected \')\' while reading query'
+
+		# Empty s-expression
+		if len(tokens) == 0:
+			_println(ERROR01); return
+
+		# First item, it is an atom, or an s-expression
+		token = tokens.pop(0)
+		if '(' == token:						# Opens an s-expression
+			ast = []							# Internal representation of tokens
+			while tokens[0] != ')': 			# Porcess until ')' is found
+				ast.append(__parse(tokens))		# Append inner expression
+			tokens.pop(0)						# Get rid of ')'
+			return ast
+		elif ')' == token:						# That is a malformed s-expression
+			_println(ERROR02); return
+		else:
+			return str(token)					# That's an atom
+
+		#################################################################################
+		# __parse
+		#################################################################################
+
+	#################################################################################
+	# _read()
+	#################################################################################
+
+	ERROR01 = 'Error while parsing query'
+
+	query, ch, level = '', '', 0	# Input handling and processing
+	balanced, balance = False, 0	# Balance checking
+
+	_print(PROMPT)
+
+	''' While the s-expression is not balanced, process the input
+		character per character. If the character is a new line, it
+		treats it like an space, and increase by one the value of the 
+		level. The balanced variable, depends on the number of '(',
+		and ')'
+	'''
+
+	while not balanced:
+		ch = sys.stdin.read(1)
+		if ch != '\n':
+			if ch == '(': 
+				balance += 1
+			elif ch == ')':
+				balance -= 1
+
+			if balance < 0: 
+				_print(ERROR01)
+				break
+
+			balanced, query = balance == 0, query + ch		
+			if balanced: break
+
+		else:
+			# Empy string
+			if query.strip() == '': return []
+
+			level, query = level + 1, query + ' '
+			_print('\t' * level)
+
+	sys.stdin.read(1)		# Weird, that should be added to avoid space in the next prompt
+
+	# Pre-processing requiered for the parsing
+	query = query.strip()
+	if query == '': return []
+	tokens = query.replace('(', ' ( ').replace(')', ' ) ').split()
+
+	# Parsing and sting handling via __parse and __normalize respectively
+	tokens = __parse(tokens)
+	tokens = __normalize(tokens)
+
+	return tokens
+
+	#################################################################################
+	# _read()
+	#################################################################################
+
 def REPL():
+	''' Read queries from the command line, processes them, first
+		converting them to an internal representation, then evaluates
+		the query, and print the result of it (if needded)
+	'''
+
+	#################################################################################
+	# REPL()
+	#################################################################################
 
 	print WELCOME_MESSAGE 
 
+	# READ, EVALUATE, AND PRINT LOOP
 	while True:
 		ast = _read()
 		if len(ast) != 0:
 			# DEBUGGING: _println(str(ast))
 			_eval(ast)
+			pass
 		_print('')
+
+	#################################################################################
+	# REPL()
+	#################################################################################
 
 if __name__ == '__main__':
 	REPL()
