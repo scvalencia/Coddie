@@ -1,4 +1,4 @@
 Burp
 ====
 
-An extended interpreter of the relational algebra
+An Interpreter for Extended Relational Algebra
