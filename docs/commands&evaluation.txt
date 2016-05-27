@@ -1,4 +1,6 @@
 (env)
-(display relation_name)
+(display relation_name) -- change to relation_env
 (create relation_name (types_list) (argument_list))
 (insert relation_eval (value_list))
+(schema relation_eval)
+(rename)
