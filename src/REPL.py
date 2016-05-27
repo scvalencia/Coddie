@@ -9,7 +9,7 @@ VERSION = '0.1.1'
 
 RELEASE_DATE = '2016-04-17'
 
-WELCOME_MESSAGE = ('\n\n-----------	|	BURP - An Extended Interpreter of the Relational Algebra\n'
+WELCOME_MESSAGE = ('\n\n-----------	|	BURP - An Interpreter for Extended Relational Algebra\n'
 						'\         /	|	\n'
 						' \       /	|	Documentation %s\n'
 						'  =======       |	Type "(help)" for help.\n'
@@ -192,18 +192,17 @@ def _eval_model_instruction(query):
 			_println(str(ERROR02 % relname))
 			return
 
-		for i, _ in enumerate(types):						# Check for each type, and attribute
-			t, a = types[i], attributes[i]
-
+		for t in types:										# Check for each type
 			if t not in dmlparser.TYPES:
 				_println(ERROR03 % (relname, t))
 				return
 
+		for a in attributes:								# Check for each attribute
 			if not _handle_name(a, 'attribute'):
 				return
 
 		# Finally, insert the relation in the enviroment, and return its name
-		env[relname] = relation.Relation(relname, types, attributes)
+		env[relname] = relation.Relation(relname, types, list(attributes))
 		return relname
 
 		#################################################################################
@@ -289,6 +288,59 @@ def _eval_model_instruction(query):
 	# _eval_model_instruction
 	#################################################################################
 
+def _eval_algebra_instruction(query):
+	''' Evaluates some expression in the ALGEBRA category of evaluation,
+		that is, expressions related to the Codd's definition of relational
+		algebra operations, such as select, project, etc. 
+	'''
+
+	def _project():
+
+		ERROR01 = 'Error while parsing project statement, malformed statement'
+		ERROR02 = 'The given expression, does not evaluates to a relation'
+		ERROR03 = 'Error while projecting the relation, unbound relation %s'
+		ERROR04 = ('Error while projecting the relation, unbound attribute %s' 
+						'in the relation %s')
+
+		if len(query) != 3:			# Malformed project command
+			_println(ERROR01)
+			return
+
+		# The arguments, the evaluation of relation, and the attributes to project
+		relation, pattributes = _eval(query[1]), query[2]
+
+		if relation == None:		# Unsuccessfule evaluation
+			_println(ERROR02)
+			return 
+
+		if relation not in env:		# There's not such relation in env							# There's not such relation in env
+			_println(ERROR03 % relation)
+			return	
+
+		relation = env[relation]
+		for patt in pattributes:
+			if patt not in [a for a, _ in relation.schema]:
+				_println(ERROR04 % (patt, relation.name))
+				return
+				
+		projrel = relation.project(pattributes)
+		projrelname = projrel.name
+		env[projrelname] = projrel
+		return projrelname
+
+	#################################################################################
+	# _eval_algebra_instruction
+	#################################################################################
+
+	command = query[0]
+
+	if command == 'project':
+		return _project()
+
+	#################################################################################
+	# _eval_algebra_instruction
+	#################################################################################
+
 
 def _eval(query):
 	''' Evaluates a query depending its kind. That is, the first 
@@ -326,6 +378,8 @@ def _eval(query):
 
 					'MODEL' : 
 						['create', 'insert'],
+					'ALGEBRA' :
+						['project'],
 					}
 
 	if query == []:
@@ -338,6 +392,9 @@ def _eval(query):
 
 	elif command in instructions['MODEL']: 		# MODEL operations
 		return _eval_model_instruction(query)
+
+	elif command in instructions['ALGEBRA']:	# Pure relational algebra operations
+		return _eval_algebra_instruction(query)
 
 	elif type(query) == str:					# A symbol, or an atom
 		return query
