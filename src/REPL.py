@@ -41,7 +41,7 @@ def _print(str):
 	#################################################################################
 
 def _println(str):
-	''' Prints the given string, being supported bu _print, adding
+	''' Prints the given string, being supported by _print, adding
 		a new line at the end of the message.
 	'''
 
@@ -79,19 +79,22 @@ def _eval_io_instruction(x):
 	elif command == 'fetch':
 		filename = x[1].replace('\'', '')
 		try:
-			_println(filename)
 			env = dmlparser.parsefile(filename)
 		except:
 			_println('Error while loading file \'%s\'' % filename)
 			_print('')
-			env = {}
 
 	# TODO, comment it, and check syntax and semantics
 	elif command == 'display':
-		relation = x[1]
+		relation = _eval(x[1])
 		print
 		env[relation].display()
 		print
+
+		# Garbage collection of intermediate relation
+		if relation != x[1]:
+			relation = env[relation]
+			env.pop(relation.name)
 
 	# TODO, comment it, and check syntax and semantics
 	elif command == 'env':
@@ -373,13 +376,16 @@ def _eval(query):
 
 	# Instructions classification
 	instructions = {
+
 					'IO' : 
-						['save', 'fetch', 'display', 'env'],
+						['save', 'fetch', 'display', 'env', 'exec'],
 
 					'MODEL' : 
 						['create', 'insert'],
+
 					'ALGEBRA' :
 						['project'],
+
 					}
 
 	if query == []:
