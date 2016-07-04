@@ -16,7 +16,7 @@
 ;; Returns the result reation from the union of relations r1 and r2
 (UNION r1 r2)
 
-(CREATE employee (name lastname salary) (STRING STRING INTEGER))
+
 
 (INSERT (v1 ... vn) (CREATE employee (name lastname salary) (STRING STRING INTEGER)))
 
@@ -27,6 +27,13 @@
 
 
 (GARBAGE name)
+ ====================================
+
+(create student (STRING STRING STRING REAL) (name lastname program gpa))
+(insert student ("Daniel Lewis" "Karpis" "Computer Science" 3.7))
+
+(display (project student (lastname program)))
+(display student)
 
 
 
