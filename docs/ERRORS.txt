@@ -1,6 +1,0 @@
-00x (Modeling errors)
-
-	001: Could not create the relation due to model inconsistency,
-		 length of attributes do not agreed with the length of types.
-
-01x ()
