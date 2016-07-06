@@ -1,8 +1,0 @@
-(= name "sdgfg dfgdf fdggdf dfgd")
-(and (= name "mafaldo l bobo") (= religion "hlb hlbk"))
-
-(select relation (and (= name "mafaldo l bobo") (= religion "hlb hlbk") (<= age 43)))
-
-lambda 
-
-relation.tuples[tpl][relation.attributes.index(name)]
