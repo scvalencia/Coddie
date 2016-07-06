@@ -1,43 +1,6 @@
-;; Save every single relation into a burp file
-(SAVE (R1 ... Rn) 'object.burp')
-
-;; Retrieves the relations from the burp file
-(FETCH 'object.burp')
-
-;; Inserts a new tuple into the relation
-(INSERT (v1 ... vn) employee)
-
-;; Deletes the given tuple from the relation
-(DELETE (v1 ... vn) employee)
-
-;; Assign to a new relation called as <name>, the result relation from <exp>
-(SET <name> <exp>)
-
-;; Returns the result reation from the union of relations r1 and r2
-(UNION r1 r2)
-
-
-
-(INSERT (v1 ... vn) (CREATE employee (name lastname salary) (STRING STRING INTEGER)))
-
-(PRINT exp)
-
-;; Projects a relation on the given argument
-(PROJECT rel (a1 .. a2))
-
-
-(GARBAGE name)
- ====================================
-
-(create student (STRING STRING STRING REAL) (name lastname program gpa))
-(insert student ("Daniel Lewis" "Karpis" "Computer Science" 3.7))
-
-(display (project student (lastname program)))
-(display student)
-
-;; saves a single relation, given by an expression that evaluates to a relation
-;; to a file named as filename given as a string "model.burp", if possible,
-;; otherwise, it would report an appropiate error message
+;; saves a single relation to a file named as filename given as a string 
+;; "model.burp" if possible. Otherwise, it would report an appropiate 
+;; error message
 
 (save relation filename)
 
@@ -54,13 +17,92 @@
 
 (save (relation1 relation2 ... relationn) filename)
 
-;; exports the given relation using the specified option,
+;; retreieves every single relation and populate them using the .burp file
+;; specified in filename. It should have the form "model.burp", that is, an
+;; string expression ending in '.burp'. If everything is properly setup, the 
+;; action would be complete, and the enviroment is going to be populated from
+;; those relations
+
+(fetch filename)
+
+;; displays a complete relation in the command line, specifying its attributes,
+;; and whole data. relation should be an expression that evaluates 
+;; to a relation, otherwise, the error would be shown. If the relation is 
+;; not a relation in the enviroment, it would compute the relation and remove it
+;; after the computation ends
+
+(display relation)
+
+EXAMPLES:
+
+	(display (project student (lastname program)))
+
+	(display student)
+
+;; exports the given relation using the specified option.
+;;
 ;; if option is "latex", it prints the LaTeX representation of the relation
 ;; if caption is given, it would be the caption of the LaTeX table. caption,
-;; should be an string as in "This is a valid caption"
+;; should be an string as in "This is a valid caption".
+;;
 ;; relation is an expression that evaluates to an expression
 
 (export relation option caption?)
 
+;; displays the current database schema, that is, the current relations on 
+;; the enviroment, and each schema.
 
+(env)
 
+;; creates a relation given its name, types and attributes. This command,
+;; creates a new Relation object with schema name(attribute1:type1, ..., attributen:typen)
+;; if the arity of types and attributes is the same, and you give a valid name, 
+;; the operation would be successful. Otherwise, it would report an appropiate
+;; error message. The computation of this stament, does evaluates to a relation
+
+(create name (type1 type2 ... typen) (attribute1 attribute2 ... attributen))
+
+EXAMPLES:
+
+	(create student (STRING STRING STRING REAL) (name lastname program gpa))
+
+;; inserts a tuple in a relation. Given an existing relation (or on the fly created), 
+;; and a tuple that satisfies the domain of the relation, it would add the new tuple to the 
+;; existing relation. If the tuple does not fit the relation's arity, or its
+;; domain; or the relation is not a valid relation, it would report an appropiate
+;; error message. relation could also be an expression that evaluates to a relation
+
+(insert relation (val1 val2 ... valn))
+
+EXAMPLES:
+
+	(insert            
+		(create rel (STRING INTEGER) (name year))
+		("Philip Flajolet" 1934))
+
+	(insert 
+		student 
+		("Daniel Lewis" "Karpis" "Computer Science" 3.7))
+
+	(insert 
+		(project Movies (year)) 
+		(3434))
+
+;; produces from relation a new relation that has only some relation's columns.
+;; Its value is a relation that has only the columns for attributes attri i = 1..n
+;; The schema of the produced relation is the set of attributes {attr1 attr2 ... attrn},
+;; which are shown in the order listed. relation is an expression that evaluates to a
+;; relation, if any of the specified attributes does not belongs to the evaluated
+;; relation attributes, or the relation expression does not evaluate to a valid relation
+;; an error would be generated. The result relation, is added to the enviroment, with a
+;; random name. It could be changed with the set operator
+
+(project relation (attr1 attr2 ... attrn))
+
+EXAMPLES:
+	
+	(project students (name gpa))
+
+	(project 
+		(project Movies (year length genre)) 
+		(year genre))
