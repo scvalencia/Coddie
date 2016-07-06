@@ -191,6 +191,8 @@ def _eval_io_instruction(x):
 			_println(ERROR10); return
 
 		sys.stdout.flush()
+		_println('')
+
 		for relation in env:
 			relation = env[relation]
 
@@ -201,7 +203,10 @@ def _eval_io_instruction(x):
 			envmessage += ', '.join(schema)
 
 			envmessage += ')'
+
 			_println(envmessage)
+
+		_println('')
 
 	#################################################################################
 	# _eval_io_instruction
@@ -393,7 +398,7 @@ def _eval_algebra_instruction(query):
 		ERROR02 = 'The given expression, does not evaluates to a relation'
 		ERROR03 = 'Error while projecting the relation, unbound relation %s'
 		ERROR04 = ('Error while projecting the relation, unbound attribute %s' 
-						'in the relation %s')
+						' in the relation %s')
 
 		if len(query) != 3:			# Malformed project command
 			_println(ERROR01); return
@@ -688,7 +693,6 @@ def REPL():
 	while True:
 		ast = _read()
 		if len(ast) != 0:
-			# DEBUGGING: _println(str(ast))
 			_eval(ast)
 			pass
 		_print('')
