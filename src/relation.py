@@ -140,29 +140,29 @@ class Relation(object):
 		seed = string.ascii_uppercase + string.digits
 		return ''.join(random.choice(seed) for _ in range(n))
 
-# INSERT (1, 'John', 100) INTO employee
-'''
-r = Relation('employee', ['STRING', 'STRING', 'INTEGER'], ['name', 'lastname', 'salary'])
-r.insert(('"Alonso"', '"Perez"', '100'))
-r.insert(('"Rodolfo"', '"Benitez"', '50'))
-r.display()
-r.delete(('"Rodolfo"', '"Benitez"', '50'))
-r.display()
+	def tolatex(self, caption=''):
+		latex, header = '\\begin{table}[h!]\n\centering\n', ''
 
-print
-print
+		for itm in self.attributes: 
+			header += itm + ' & '
 
-print r.save()
+		header = header[:-3]
+		latex += '\\begin{tabular}{||%s||}\n' % (self.arity * 'c ')[:-1]
+		latex += '\t\hline\n'
+		latex += '\t%s \\\\ [0.5ex]\n' % header
+		latex += '\t\hline\hline\n'
 
-a = r.project(['salary', 'name'])
-print a.name
-a.display()
+		for _hash in self.tuples:
+			_tuple = '\t\t'
+			_tuple += ' & '.join(self.tuples[_hash].data)
+			_tuple += ' \\\\\n'
+			latex += _tuple
 
-b = r.project(['name', 'salary'])
-print b.name
-b.display()
+		latex = latex[:-1]	
+		latex += ' [1ex]\n'
+		latex += '\t\hline\n\end{tabular}\n'
+		latex += ('\caption{%s}\n' % caption) if caption else ''
+		latex += '\label{table:relation_%s}\n' % self.name.lower()
+		latex += '\end{table}\n'
 
-c = b.project(['name'])
-print c.name
-c.display()
-'''
+		return latex
