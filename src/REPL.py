@@ -57,7 +57,7 @@ def _println(str):
 
 def _eval_io_instruction(x):
 	''' Evaluates some expression in the IO category of evaluation,
-		that is, expressions that interacts with the world, that is, 
+		that is, expressions that interacts with the world, that means 
 		to save the enviroment or part of it to a file, to retrieve 
 		relations from a file, to display a relation, or to show the 
 		current state of the enviroment.
@@ -69,15 +69,63 @@ def _eval_io_instruction(x):
 
 	global env
 
+	ERROR01 = 'Error while parsing save statement, missing arguments'
+	ERROR02 = 'The given string doesn\'t represent a relation: %s'
+	ERROR03 = 'Error while saving relation(s) inf the given file: %s'
+	ERROR04 = 'Error while parsing export statement, undefined option'
+	ERROR05 = 'The given expression, does not evaluates to a relation'
+	ERROR06 = '%s, is not an allowed option'
+
 	command = x[0]
 
-	# TODO, comment it, and check syntax and semantics
+	# Save one, or several relations into a '.burp' file
 	if command == 'save':
-		pass
+		
+		if len(x) != 3:
+			_println(ERROR01)
+		else:
+			tosave, filename, ans = x[1], x[2].replace('"', ''), ''			
+			# Saving several relations
+			if isinstance(tosave, list):
+				for relation in tosave:
+					relation = _eval(relation)
+
+					if relation == None:				# Unsuccessful evaluation
+						_println(ERROR05); return
+					if relation not in env:				# Not a relation
+						_println(ERROR02 % relation); return
+
+					relation = env[relation]
+					ans += relation.save()
+			else:
+				# Saving every relation in the enviroment
+				if tosave == '*':
+					for relation in env:
+						relation = env[relation]
+						ans += relation.save() + '\n'
+				# Saving a single relation
+				else:
+					relation = _eval(tosave)
+
+					if relation == None:				# Unsuccessful evaluation
+						_println(ERROR05); return
+
+					if relation not in env:				# Not a relation
+						_println(ERROR02 % relation); return
+
+					relation = env[relation]
+					ans += relation.save()
+
+			try:
+				fileobject = open(filename, 'w')
+				fileobject.write(ans[:-1])
+			except Exception as e:
+				_println(ERROR03); _println(e); return
 
 	# TODO, comment it, and check syntax and semantics
-	elif command == 'fetch':
-		filename = x[1].replace('\'', '')
+	elif command == 'fetch':							# Unsuccessful file I/O
+		filename = x[1].replace('"', '')
+
 		try:
 			env = dmlparser.parsefile(filename)
 		except:
@@ -95,6 +143,32 @@ def _eval_io_instruction(x):
 		if relation != x[1]:
 			relation = env[relation]
 			env.pop(relation.name)
+
+	elif command == 'export':
+
+		if len(x) < 3:
+			_println(ERROR03)
+		else:
+			relation = _eval(x[1])
+			option = x[2]
+
+			if relation == None:				# Unsuccessfule evaluation
+				_println(ERROR05)
+				return
+
+			# LaTeX branch
+			if option == '"latex"' or option == "'latex'":
+				# Optional caption
+				caption = x[3][1:-1] if len(x) == 4 else ''
+				relation = env[relation]
+				latex_string = relation.tolatex(caption)
+				print
+				_println(latex_string)
+
+			# Another branch
+			else:
+				_println(ERROR06 % option)
+
 
 	# TODO, comment it, and check syntax and semantics
 	elif command == 'env':
@@ -378,7 +452,7 @@ def _eval(query):
 	instructions = {
 
 					'IO' : 
-						['save', 'fetch', 'display', 'env', 'exec'],
+						['save', 'fetch', 'display', 'env', 'exec', 'export'],
 
 					'MODEL' : 
 						['create', 'insert'],
