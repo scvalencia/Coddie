@@ -24,6 +24,7 @@ PROMPT = '>>> '
 ''' The envirment, which is supposed to be loaded from the file '''
 env = {}
 
+
 def _print(str):
 	''' Prints the given string using low level features provided
 		by the Python's standard library.
@@ -75,6 +76,10 @@ def _eval_io_instruction(x):
 	ERROR04 = 'Error while parsing export statement, undefined option'
 	ERROR05 = 'The given expression, does not evaluates to a relation'
 	ERROR06 = '%s, is not an allowed option'
+	ERROR07 = 'Error while parsing fetch statement, missing arguments'
+	ERROR08 = 'Error while fetching relations from \'%s\''
+	ERROR09 = 'Error while parsing display statement, missing arguments'
+	ERROR10 = 'Error while parsing env statement, missing arguments'
 
 	command = x[0]
 
@@ -116,25 +121,35 @@ def _eval_io_instruction(x):
 					relation = env[relation]
 					ans += relation.save()
 
-			try:
+			try:										# Unsuccessful file I/O
 				fileobject = open(filename, 'w')
 				fileobject.write(ans[:-1])
 			except Exception as e:
-				_println(ERROR03); _println(e); return
+				_println(ERROR03); _println(str(e)); return
 
-	# TODO, comment it, and check syntax and semantics
-	elif command == 'fetch':							# Unsuccessful file I/O
-		filename = x[1].replace('"', '')
+	# Fetch a single or several relations from a file
+	elif command == 'fetch':
+		if len(x) != 2:
+			_println(ERROR07); return
+
+		filename = x[1].replace('"', '')		
 
 		try:
-			env = dmlparser.parsefile(filename)
-		except:
-			_println('Error while loading file \'%s\'' % filename)
-			_print('')
+			dummyenv = dmlparser.parsefile(filename)	# Parsing the file
+			# Populating the enviroment
+			for relation in dummyenv:
+				env[relation] = dummyenv[relation]
 
-	# TODO, comment it, and check syntax and semantics
+		except Exception as e:							# Unsuccessful file I/O
+			_println(ERROR08 % filename); _println(str(e)); return 
+
+	# Displays the given relation (or the evaluated relation)
 	elif command == 'display':
+		if len(x) != 2:
+			_println(ERROR09); return
+
 		relation = _eval(x[1])
+
 		print
 		env[relation].display()
 		print
@@ -144,34 +159,37 @@ def _eval_io_instruction(x):
 			relation = env[relation]
 			env.pop(relation.name)
 
+	# Exports the given relation to the specified format
 	elif command == 'export':
+		if len(x) < 3:									# Handling optional argument
+			_println(ERROR03); return
 
-		if len(x) < 3:
-			_println(ERROR03)
+		relation = _eval(x[1])
+		option = x[2]
+
+		if relation == None:							# Unsuccessful evaluation
+			_println(ERROR05); return
+
+		# LaTeX branch
+		if option == '"latex"':
+			# Optional caption
+			caption = x[3][1:-1] if len(x) == 4 else ''
+			relation = env[relation]
+			latex_string = relation.tolatex(caption)
+
+			print
+			_println(latex_string)
+
+		# Another branch
 		else:
-			relation = _eval(x[1])
-			option = x[2]
-
-			if relation == None:				# Unsuccessfule evaluation
-				_println(ERROR05)
-				return
-
-			# LaTeX branch
-			if option == '"latex"' or option == "'latex'":
-				# Optional caption
-				caption = x[3][1:-1] if len(x) == 4 else ''
-				relation = env[relation]
-				latex_string = relation.tolatex(caption)
-				print
-				_println(latex_string)
-
-			# Another branch
-			else:
-				_println(ERROR06 % option)
+			_println(ERROR06 % option); return
 
 
-	# TODO, comment it, and check syntax and semantics
+	# Shows the relations present in the enviroment, and their type
 	elif command == 'env':
+		if len(x) != 1:
+			_println(ERROR10); return
+
 		sys.stdout.flush()
 		for relation in env:
 			envmessage = relation + ' : ' + str(tuple(env[relation].types))
@@ -279,7 +297,7 @@ def _eval_model_instruction(query):
 				return
 
 		# Finally, insert the relation in the enviroment, and return its name
-		env[relname] = relation.Relation(relname, types, list(attributes))
+		env[relname] = relation.Relation(relname, types, query[3])
 		return relname
 
 		#################################################################################
