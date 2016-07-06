@@ -192,7 +192,15 @@ def _eval_io_instruction(x):
 
 		sys.stdout.flush()
 		for relation in env:
-			envmessage = relation + ' : ' + str(tuple(env[relation].types))
+			relation = env[relation]
+
+			schema = [_attribute + ':' + _type.lower() \
+				for _attribute, _type in relation.schema]
+
+			envmessage = relation.name + '('
+			envmessage += ', '.join(schema)
+
+			envmessage += ')'
 			_println(envmessage)
 
 	#################################################################################
@@ -229,8 +237,7 @@ def _eval_model_instruction(query):
 		# Hor each character, check the condition
 		for ch in name:
 			if condition(ch): 
-				_println(ERROR01 % (string_type, name))
-				return False
+				_println(ERROR01 % (string_type, name)); return False
 
 		return True
 
@@ -270,8 +277,7 @@ def _eval_model_instruction(query):
 		ERROR04 = 'Error while creating relation %s : arity must be bigger than zero'
 
 		if len(query) != 4:
-			_println(ERROR01)								# Malformed create command
-			return
+			_println(ERROR01); return						# Malformed create command
 
 		# The arguments, the name of the new relation, its types and attributes
 		relname, types, attributes = query[1], query[2], set(query[3])
@@ -280,17 +286,14 @@ def _eval_model_instruction(query):
 			return
 
 		if len(types) == 0 or len(attributes) == 0:			# Empty schema or empty types
-			_println(str(ERROR04 % relname))
-			return 
+			_println(str(ERROR04 % relname)); return 
 
 		if len(types) != len(attributes):					# Arity mismatch
-			_println(str(ERROR02 % relname))
-			return
+			_println(str(ERROR02 % relname)); return
 
 		for t in types:										# Check for each type
 			if t not in dmlparser.TYPES:
-				_println(ERROR03 % (relname, t))
-				return
+				_println(ERROR03 % (relname, t)); return
 
 		for a in attributes:								# Check for each attribute
 			if not _handle_name(a, 'attribute'):
@@ -332,33 +335,28 @@ def _eval_model_instruction(query):
 		ERROR05 = ('The given expression, does not evaluates to a relation')
 
 		if len(query) != 3:						
-			_println(ERROR01)								# Malformed insert command
-			return
+			_println(ERROR01); return						# Malformed insert command
 
 		# The arguments, the evaluation of relation, and the tuple to insert
 		relation, values = _eval(query[1]), query[2]
 
 		if relation == None:								# Unsuccessfule evaluation
-			_println(ERROR05)
-			return
+			_println(ERROR05); return
 
 		if relation not in env:								# There's not such relation in env
-			_println(ERROR02 % relation)
-			return		
+			_println(ERROR02 % relation); return		
 
 		relation = env[relation]							# The relation object
 		if len(values) != relation.arity:					# Arity mismatch leads to an error
 			_println(ERROR03 % \
-			 		(relation.name, relation.arity, len(values)))
-			return
+			 		(relation.name, relation.arity, len(values))); return
 
 		reltype = [t for _, t in relation.schema]			# The type of the relation
 		tpltype = [datatypes.infertype(i) for i in values]	# The type of the given tuple
 
 		if reltype != tpltype:								# Type mismatch leads to an error
 			_println(ERROR04 %\
-					(relation.name, tuple(reltype), tuple(tpltype)))
-			return
+					(relation.name, tuple(reltype), tuple(tpltype))); return
 
 		relation.insert(values)								# Finally, if this point is reached
 															# insert the tuple, via the kernel
@@ -398,25 +396,21 @@ def _eval_algebra_instruction(query):
 						'in the relation %s')
 
 		if len(query) != 3:			# Malformed project command
-			_println(ERROR01)
-			return
+			_println(ERROR01); return
 
 		# The arguments, the evaluation of relation, and the attributes to project
 		relation, pattributes = _eval(query[1]), query[2]
 
 		if relation == None:		# Unsuccessfule evaluation
-			_println(ERROR02)
-			return 
+			_println(ERROR02); return 
 
-		if relation not in env:		# There's not such relation in env							# There's not such relation in env
-			_println(ERROR03 % relation)
-			return	
+		if relation not in env:		# There's not such relation in env
+			_println(ERROR03 % relation); return	
 
 		relation = env[relation]
 		for patt in pattributes:
 			if patt not in [a for a, _ in relation.schema]:
-				_println(ERROR04 % (patt, relation.name))
-				return
+				_println(ERROR04 % (patt, relation.name)); return
 				
 		projrel = relation.project(pattributes)
 		projrelname = projrel.name
@@ -500,8 +494,7 @@ def _eval(query):
 	elif command == 'exit':						# Exit from the Burp system
 
 		if len(query) != 1:						# Malformed exit command
-			_println(ERROR01)
-			return
+			_println(ERROR01); return
 
 		_println('\n' + EXIT_MESSAGE )
 		exit()
