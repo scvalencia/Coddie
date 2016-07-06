@@ -86,3 +86,19 @@
 		)
 	)
 )
+
+
+
+
+===========================
+
+;; Deletes the given tuple from the relation
+(DELETE (v1 ... vn) employee)
+
+;; Assign to a new relation called as <name>, the result relation from <exp>
+(SET <name> <exp>)
+
+;; Returns the result reation from the union of relations r1 and r2
+(UNION r1 r2)
+
+(GARBAGE name)
