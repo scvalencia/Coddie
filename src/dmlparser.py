@@ -26,7 +26,7 @@ is: %s.\n\tTuple\'s type is: %s'
 
 ERROR11 = 'Error while inserting tuple into the %s relation at line %d. Expecting ( but INTO found'
 
-TYPES = ['INTEGER', 'CHAR', 'STRING', 'REAL', 'BOOL', 'DATE']
+TYPES = ['INTEGER', 'CHAR', 'STRING', 'REAL', 'BOOL']
 relations = {}
 
 def _callerror(error):
