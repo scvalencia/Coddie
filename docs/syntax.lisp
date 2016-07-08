@@ -1,8 +1,12 @@
 ;; saves a single relation to a file named as filename given as a string 
 ;; "model.burp" if possible. Otherwise, it would report an appropiate 
-;; error message
+;; error message. relation must be an explicit relation
 
 (save relation filename)
+
+EXAMPLES:
+	
+	(save student "relations/student.burp")
 
 ;; saves every relation in the enviroment to a file named as filename 
 ;; given as a string "model.burp", if possible, otherwise, it would 
@@ -10,12 +14,20 @@
 
 (save * filename)
 
+EXAMPLES:
+	
+	(save * "relations/student.burp")
+
 ;; saves every specified relation, given by several expressions that 
 ;; evaluates to relations to a file named as filename given as a string 
 ;; "model.burp", if possible, otherwise, it would report an appropiate 
 ;; error message
 
 (save (relation1 relation2 ... relationn) filename)
+
+EXAMPLES:
+	
+	(save (student employee) "relations/student.burp")
 
 ;; retreieves every single relation and populate them using the .burp file
 ;; specified in filename. It should have the form "model.burp", that is, an
@@ -25,11 +37,16 @@
 
 (fetch filename)
 
+EXAMPLES:
+	
+	(fetch "relations/student.burp")
+
 ;; displays a complete relation in the command line, specifying its attributes,
 ;; and whole data. relation should be an expression that evaluates 
 ;; to a relation, otherwise, the error would be shown. If the relation is 
 ;; not a relation in the enviroment, it would compute the relation and remove it
-;; after the computation ends
+;; after the computation ends. It collects and throws the intermediate generated
+;; relations
 
 (display relation)
 
@@ -39,6 +56,25 @@ EXAMPLES:
 
 	(display student)
 
+	(display 
+		(project 
+			(project 
+				employee 
+				(name salary)
+			) 
+			(name)
+		)
+	)
+
+	(display 
+		(union 
+			(project 
+				(project 
+					managers 
+					(number surname)) 
+				(number)) 
+			(project graduates (number))))
+
 ;; exports the given relation using the specified option.
 ;;
 ;; if option is "latex", it prints the LaTeX representation of the relation
@@ -46,19 +82,41 @@ EXAMPLES:
 ;; should be an string as in "This is a valid caption".
 ;;
 ;; relation is an expression that evaluates to an expression
+;; It collects and throws the intermediate generated relations
 
 (export relation option caption?)
+
+EXAMPLES:
+	
+	(export student "latex" "This is a relation")
+
+	(export student "latex")
+
+	(export 
+		(project 
+			(project 
+				employee 
+				(name salary)) 
+			(name)) 
+		"latex" 
+		"This is a nice relation"
+	)
 
 ;; displays the current database schema, that is, the current relations on 
 ;; the enviroment, and each schema.
 
 (env)
 
+;; end REPL execution
+
+(exit)
+
 ;; creates a relation given its name, types and attributes. This command,
 ;; creates a new Relation object with schema name(attribute1:type1, ..., attributen:typen)
 ;; if the arity of types and attributes is the same, and you give a valid name, 
 ;; the operation would be successful. Otherwise, it would report an appropiate
-;; error message. The computation of this stament, does evaluates to a relation
+;; error message. The computation of this stament, does evaluates to an empty
+;; relation
 
 (create name (type1 type2 ... typen) (attribute1 attribute2 ... attributen))
 
@@ -96,6 +154,7 @@ EXAMPLES:
 ;; relation attributes, or the relation expression does not evaluate to a valid relation
 ;; an error would be generated. The result relation, is added to the enviroment, with a
 ;; random name. It could be changed with the set operator
+;; It collects and throws the intermediate generated relations
 
 (project relation (attr1 attr2 ... attrn))
 
@@ -106,3 +165,69 @@ EXAMPLES:
 	(project 
 		(project Movies (year length genre)) 
 		(year genre))
+
+;; produces an new relation from two relations, consisting in the set-union
+;; of the tuples of the two original relations. It requieres type-compatibility,
+;; and the schema of the resultign relation is the same as the first operand. That is
+;; given (union relation1 reltion2), it evaluates to a relation with the same schema
+;; as relation1. relation1, and relation2, must be expressions that evaluate to a 
+;; relation, otherwise, an error would be raised. If the relations are not type-compatible,
+;; an error would be raised. It collects and throws the intermediate generated relations.
+;; The resulting relation, would be added to the enviroment
+
+(union relation1 relation2)
+
+EXAMPLES:
+	
+	(union managers graduates)
+
+	(union 
+		(project 
+			(project managers (number surname)) 
+			(number)) 
+		(project graduates (number))
+	)
+
+;; produces an new relation from two relations, consisting in the set-intersection
+;; of the tuples of the two original relations. It requieres type-compatibility,
+;; and the schema of the resultign relation is the same as the first operand. That is
+;; given (union relation1 reltion2), it evaluates to a relation with the same schema
+;; as relation1. relation1, and relation2, must be expressions that evaluate to a 
+;; relation, otherwise, an error would be raised. If the relations are not type-compatible,
+;; an error would be raised. It collects and throws the intermediate generated relations.
+;; The resulting relation, would be added to the enviroment
+
+(inter relation1 relation2)
+
+EXAMPLES:
+	
+	(inter managers graduates)
+
+	(inter 
+		(project 
+			(project managers (number surname)) 
+			(number)) 
+		(project graduates (number))
+	)
+
+;; produces an new relation from two relations, consisting in the set-difference
+;; of the tuples of the two original relations. It requieres type-compatibility,
+;; and the schema of the resultign relation is the same as the first operand. That is
+;; given (union relation1 reltion2), it evaluates to a relation with the same schema
+;; as relation1. relation1, and relation2, must be expressions that evaluate to a 
+;; relation, otherwise, an error would be raised. If the relations are not type-compatible,
+;; an error would be raised. It collects and throws the intermediate generated relations.
+;; The resulting relation, would be added to the enviroment
+
+(diff relation1 relation2)
+
+EXAMPLES:
+	
+	(diff managers graduates)
+
+	(diff 
+		(project 
+			(project managers (number surname)) 
+			(number)) 
+		(project graduates (number))
+	)
