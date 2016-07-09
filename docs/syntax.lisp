@@ -166,6 +166,26 @@ EXAMPLES:
 		(project Movies (year length genre)) 
 		(year genre))
 
+;; select
+
+EXAMPLES:
+
+	(select employee (= name "ERNESTO"))
+
+	(select 
+		relation 
+		(and 
+			(= name "Pepito") 
+			(<= age 45) 
+			(or 
+				(= religion "muslim") 
+				(<> lastname "Curry")
+			)))
+
+	(select persons (not married))
+
+	(select persons (<> religion "muslim"))
+
 ;; produces an new relation from two relations, consisting in the set-union
 ;; of the tuples of the two original relations. It requieres type-compatibility,
 ;; and the schema of the resultign relation is the same as the first operand. That is
