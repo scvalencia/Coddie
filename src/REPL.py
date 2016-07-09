@@ -70,6 +70,17 @@ def _gc(relation, expression):
 	if relation.name != expression: 
 		env.pop(relation.name)
 
+def _prefix_to_infix(expr):
+	if type(expr) != type([]):			# The expression is a number or variable.
+		return str(expr)
+	elif len(expr) == 2:				# This is an operator expression with 1 argument.
+		return str(expr[1])
+	else:								# This is an operator expression with 2 or more arguments.
+		operator = expr[0]
+		left_arg = _prefix_to_infix([operator] + expr[1:-1])
+		right_arg = _prefix_to_infix(expr[-1])
+		return "({0}{1}{2})".format(left_arg, operator, right_arg)
+
 #################################################################################
 # EVALUATION OF I/O RELATED QUERIES
 #################################################################################
@@ -344,6 +355,21 @@ def _project(query):
 	_gc(relation, query[1])
 	return resulting_relation.name
 
+def _select(query):
+
+	global env
+
+	if not _check_query_length(lambda a, b : a != b, query, 'select', 3): 
+		return
+
+	# The arguments, the evaluation of relation, and the attributes to project
+	relation, predicate = _eval(query[1]), query[2]
+	if not _check_relation(relation): return
+	relation = env[relation]
+
+	print predicate
+	print _prefix_to_infix(predicate)
+
 def _union(query):
 
 	global env
@@ -418,6 +444,7 @@ def _eval_algebra_instruction(query):
 
 	function_dct = {
 						'project' : _project,
+						'select' : _select,
 						'union' : _union,
 						'inter' : _inter,
 						'diff' : _diff,
@@ -463,7 +490,7 @@ def _eval(query):
 						['create', 'insert'],
 
 					'ALGEBRA' :
-						['project', 'union', 'inter', 'diff'],
+						['project', 'select', 'union', 'inter', 'diff'],
 
 					}
 
