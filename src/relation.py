@@ -6,6 +6,8 @@ import datatypes
 def _callerror(error):
 	print error.replace('  ', ' ')
 
+
+
 class Tuple(object):
 
 	_ERROR01 = 'Unrecognized value %s on tuple %s'
@@ -111,6 +113,8 @@ class Relation(object):
 			resulting.insert(tuple(lst))
 
 		return resulting
+
+	def 
 
 	def type_compatible(self, that):
 		return self.types == that.types
