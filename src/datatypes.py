@@ -14,7 +14,7 @@ succeed, then it handles an internal representation, otherwise,
 the data is 'NULL' and the conversion failed. Representation and
 operations depends on the machine.
 
-The general scheme of a type in BURP is to check if the argument
+The general scheme of a type in Coddie is to check if the argument
 is valid (is in the domain of the type), if it is, the string
 representation of it is the bare value, otherwise it is NULL,
 semantics indicates that NULL is an unrecognized value in the 
