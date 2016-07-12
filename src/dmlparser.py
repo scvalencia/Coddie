@@ -2,7 +2,7 @@ import re
 import datatypes
 import relation
 
-ERROR01 = 'Not a Burp DML file'
+ERROR01 = 'Not a Coddie DML file'
 
 ERROR02 = 'Error while parsing relation declaration at line %d'
 
@@ -39,7 +39,7 @@ def _preamble(filename):
 		_callerror(ERROR01)
 		return
 
-	if extension.lower() != 'burp': _preamble(filename)
+	if extension.lower() != 'codd': _preamble(filename)
 
 	return filename, extension
 
@@ -163,7 +163,7 @@ def _handle_insertion(instruction, currentline):
 		_callerror(ERROR10 % (name, currentline, tuple(reltype), tuple(tpltype)))
 		return
 
-	return values
+	return tuple(values)
 
 def parsefile(filename):
 
