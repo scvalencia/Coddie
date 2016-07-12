@@ -186,6 +186,27 @@ EXAMPLES:
 
 	(select persons (<> religion "muslim"))
 
+	(select 
+		TuringAward 
+		(and 
+			(= firstname "Pepito") 
+			(<= year 45) 
+			(or 
+				(= motivation "muslim") 
+				(<> lastname "Knuth")
+			)))
+
+	(select 
+			TuringAward 
+			(or 
+				(= lastname "Knuth")
+				(= lastname "Perlis")
+			))
+
+	(select 
+			TuringAward 
+			(> year 1900))
+
 ;; produces an new relation from two relations, consisting in the set-union
 ;; of the tuples of the two original relations. It requieres type-compatibility,
 ;; and the schema of the resultign relation is the same as the first operand. That is
