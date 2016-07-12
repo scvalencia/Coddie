@@ -68,6 +68,8 @@ def _check_condition(relation, condition):
 			for clause in condition[1:]: _check_atom(clause)
 
 		elif operand in ['=', '<=', '>=', '<>', '<', '>']:
+			# TODO: Chaek length
+
 			attribute, value_or_attribute = condition[1], condition[2]
 
 			if not isattribute(attribute):
@@ -83,6 +85,8 @@ def _check_condition(relation, condition):
 				errs += 1
 
 		elif operand == 'not':
+			# TODO: Chaek length
+
 			attribute, attribute_type = condition[1], relation.types[relation.attributes.index(attribute)]
 
 			if not isattribute(attribute):
@@ -186,6 +190,10 @@ def _fetch(query):
 		_println(errors.ERROR_FETCH_FILE % filename)
 		_println(str(e))
 		return
+
+def _execute():
+	pass
+	# COPY FROM READ()
 
 def _display(query):
 	global env
@@ -430,7 +438,7 @@ def _select(query):
 	relation = env[relation]
 
 	if not _check_condition(relation, predicate): return
-
+	
 	resulting_relation = relation.select(predicate)
 	env[resulting_relation.name] = resulting_relation
 

@@ -117,7 +117,11 @@ class Relation(object):
 		return str(idx)
 
 	def _attribute_value_equiv(self, attribute, value_or_attribute, iterator='tpl'):
+
+		equiv_types = {'INTEGER' : 'int', 'REAL' : 'float'}
+
 		isattribute = lambda x : x in self.attributes
+		attribute_type = self.types[self.attributes.index(attribute)]
 		attribute_equiv_template = 'self.tuples[%s].data[%s]'
 
 		attribute_equiv = attribute_equiv_template % (iterator, self._attribute_equiv(attribute))
@@ -125,6 +129,12 @@ class Relation(object):
 
 		if datatypes.infertype(value_or_attribute) == 'STRING':
 			value_equiv = "'" + value_or_attribute + "'"
+		else:
+			if attribute_type in equiv_types:
+				value_equiv = equiv_types[attribute_type] + '(' + value_or_attribute + ')'
+				attribute_equiv = equiv_types[attribute_type] + '(' + attribute_equiv + ')'
+			else:
+				value_equiv = 'str(' + value_or_attribute + ')'
 
 		if isattribute(value_or_attribute):
 			value_equiv = attribute_equiv_template % \
@@ -311,6 +321,18 @@ class Relation(object):
 		latex += '\end{table}\n'
 
 		return latex
+
+	def tohtml(self):
+		pass
+
+	def toxml(self):
+		pass
+
+	def tojson(self):
+		pass
+
+	def tocsv(self):
+		pass
 
 
 r1 = Relation('employee', ['STRING', 'STRING', 'INTEGER'], ['name', 'lastname', 'salary'])

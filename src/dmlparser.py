@@ -44,7 +44,7 @@ def _preamble(filename):
 	return filename, extension
 
 def _handle_name(name, currentline, string_type):
-	condition = (lambda ch : not ch.isalpha()) if string_type == \
+	condition = (lambda ch : not ch.isalnum()) if string_type == \
 			'relation' else (lambda ch : not ch.isalpha() or not ch.islower())
 
 	for ch in name:

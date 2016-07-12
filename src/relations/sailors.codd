@@ -1,0 +1,31 @@
+RELATION sailors1 {
+	sid : INTEGER
+	sname : STRING
+	rating : INTEGER
+	age : INTEGER
+}
+
+INSERT (22, "Dustin", 7, 45) INTO sailors1
+INSERT (31, "Lubber", 8, 55) INTO sailors1
+INSERT (58, "Rusty", 10, 35) INTO sailors1
+
+RELATION sailors2 {
+	sid : INTEGER
+	sname : STRING
+	rating : INTEGER
+	age : INTEGER
+}
+
+INSERT (28, "Yuppy", 9, 35) INTO sailors2
+INSERT (31, "Lubber", 8, 55) INTO sailors2
+INSERT (44, "Guppy", 5, 35) INTO sailors2
+INSERT (58, "Rusty", 10, 35) INTO sailors2
+
+RELATION reserves {
+	sid : INTEGER
+	bid : INTEGER
+	day : STRING
+}
+
+INSERT (22, 101, "10/10/96") INTO reserves
+INSERT (58, 103, "11/12/96") INTO reserves
