@@ -1,0 +1,56 @@
+% Example LaTeX document for GP111 - note % sign indicates a comment
+\documentstyle[11pt]{article}
+% Default margins are too wide all the way around.  I reset them here
+\setlength{\topmargin}{-.5in}
+\setlength{\textheight}{9in}
+\setlength{\oddsidemargin}{.125in}
+\setlength{\textwidth}{6.25in}
+\begin{document}
+\title{LaTeX Typesetting By Example}
+\author{Phil Farrell\\
+Stanford University School of Earth Sciences}
+\renewcommand{\today}{November 2, 1994}
+\maketitle
+
+The table \ref{table:relation_turingaward} is an example of referenced \LaTeX elements.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{||c c c c||}
+    \hline
+    firstname & lastname & year & motivation \\ [0.5ex]
+    \hline\hline
+        "Alan" & "Perlis" & 1966 & "Compiler, construction and, contributions" \\
+        "Edsger" & "Dijkstra" & 1972 & "Development of ALGOL, and the art of programming" \\
+        "Marvin" & "Minsky" & 1969 & "AI research" \\
+        "John" & "McCarthy" & 1971 & "AI research and LISP" \\
+        "Maurice" & "Wilkes" & 1967 & "Computer design and APIs" \\
+        "James" & "Wilkinson" & 1970 & "Numerical analysis in computation" \\
+        "Richard" & "Hamming" & 1968 & "Numerical methods and error correcting codes" \\
+        "Alan" & "Perlis" & 1966 & "Compiler, construction" \\ [1ex]
+    \hline
+\end{tabular}
+\caption{A relation representing some Turing awards}
+\label{table:relation_turingaward}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{||c||}
+    \hline
+    year \\ [0.5ex]
+    \hline\hline
+        1970 \\
+        1971 \\
+        1972 \\
+        1966 \\
+        1967 \\
+        1968 \\
+        1969 \\ [1ex]
+    \hline
+\end{tabular}
+\label{table:relation_turingaward_projection_t9o21n}
+\end{table}
+
+
+\end{document}
