@@ -35,3 +35,18 @@ ERROR_PROJECT_ATTRIBUTES = ('Error while projecting the relation, unbound attrib
 			' in the relation %s')
 
 ERROR_TYPE_COMPATIBLE = 'Error while calculating %s. Not type-compatible relations.'
+
+ERROR_SELECT_ATTRIBUTE = ('Error while selecting the relation. The given name: %s, '
+	'is not an attribute of the %s relation.')
+
+ERROR_SELECT_VALUE = ('Error while selecting the relation. The given expression: %s, '
+	'is not an attribute of the %s relation, or a valid value.')
+
+ERROR_SELECT_CLAUSE_TYPE1 = ('Error while selecting the relation. The given attribute: %s, '
+	'has not the same type as: %s.')
+
+ERROR_SELECT_CLAUSE_TYPE2 = ('Error while selecting the relation. The given attribute: %s, '
+	'must has BOOL type')
+
+ERROR_MALFORMED_CONDITION = ('Error while parsing the given condition. '
+	'%s, does not form a valid clause.')
