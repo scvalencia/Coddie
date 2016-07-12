@@ -33,9 +33,11 @@ def _check_relation(relation):
 	if relation == None:
 		_println(errors.ERROR_EXPRESION_EVAL)
 		return False
+
 	if relation not in env:
 		_println(errors.ERROR0_UNBOUND_VAR % relation)
 		return False
+
 	return True
 
 def _check_query_length(fncmp, query, instruction, expected):
@@ -43,7 +45,61 @@ def _check_query_length(fncmp, query, instruction, expected):
 		_println(errors.ERROR_MISSING_ARGS % \
 			(instruction, instruction, expected, len(query)))
 		return False
+
 	return True
+
+def _check_attribute_value_type(relation, attribute, value):
+	attribute_type = relation.types[relation.attributes.index(attribute)]
+
+	if attribute_type != datatypes.infertype(value):
+		_println(errors.ERROR_SELECT_CLAUSE_TYPE1 % (attribute, value))
+		return False
+
+	return True
+
+def _check_condition(relation, condition):
+	isattribute = lambda x : x in relation.attributes
+
+	def _check_atom(condition):
+
+		operand, errs = condition[0], 0
+
+		if operand in ['and', 'or']:
+			for clause in condition[1:]: _check_atom(clause)
+
+		elif operand in ['=', '<=', '>=', '<>', '<', '>']:
+			attribute, value_or_attribute = condition[1], condition[2]
+
+			if not isattribute(attribute):
+				_println(errors.ERROR_SELECT_ATTRIBUTE % (attribute, relation.name))
+				errs += 1
+
+			if not isattribute(value_or_attribute) and \
+				datatypes.infertype(value_or_attribute) == 'NULL':
+				_println(errors.ERROR_SELECT_VALUE % (attribute, relation.name))
+				errs += 1
+
+			if not _check_attribute_value_type(relation, attribute, value_or_attribute):
+				errs += 1
+
+		elif operand == 'not':
+			attribute, attribute_type = condition[1], relation.types[relation.attributes.index(attribute)]
+
+			if not isattribute(attribute):
+				_println(errors.ERROR_SELECT_ATTRIBUTE % (attribute, relation.name))
+				errs += 1
+
+			if attribute_type != 'BOOL':
+				_println(errors.ERROR_SELECT_CLAUSE_TYPE2 % attribute)
+				errs += 1
+
+		else:
+			_println(errors.ERROR_MALFORMED_CONDITION % operand)
+			errs += 1
+
+		return errs
+
+	return _check_atom(condition) == 0
 
 def _handle_name(name, string_type):
 	''' Checks whether or not, a given string match the specification
@@ -69,17 +125,6 @@ def _gc(relation, expression):
 
 	if relation.name != expression: 
 		env.pop(relation.name)
-
-def _prefix_to_infix(expr):
-	if type(expr) != type([]):			# The expression is a number or variable.
-		return str(expr)
-	elif len(expr) == 2:				# This is an operator expression with 1 argument.
-		return str(expr[1])
-	else:								# This is an operator expression with 2 or more arguments.
-		operator = expr[0]
-		left_arg = _prefix_to_infix([operator] + expr[1:-1])
-		right_arg = _prefix_to_infix(expr[-1])
-		return "({0}{1}{2})".format(left_arg, operator, right_arg)
 
 #################################################################################
 # EVALUATION OF I/O RELATED QUERIES
@@ -332,6 +377,23 @@ def _eval_model_instruction(query):
 # EVALUATION OF RELATIONAL ALGEBRA OPERATOS
 #################################################################################
 
+def _set(query):
+
+	global env
+
+	if not _check_query_length(lambda a, b : a != b, query, 'set', 3): 
+		return
+
+	relname, relation = query[1], _eval(query[2])
+	if not _check_relation(relation): return
+	relation = env[relation]
+
+	env[relname] = env.pop(relation.name)
+	env[relname].name = relname
+
+	_gc(relation, query[1])
+	return relation.name
+
 def _project(query):
 
 	global env
@@ -367,8 +429,13 @@ def _select(query):
 	if not _check_relation(relation): return
 	relation = env[relation]
 
-	print predicate
-	print _prefix_to_infix(predicate)
+	if not _check_condition(relation, predicate): return
+
+	resulting_relation = relation.select(predicate)
+	env[resulting_relation.name] = resulting_relation
+
+	_gc(relation, query[1])
+	return resulting_relation.name
 
 def _union(query):
 
@@ -436,6 +503,25 @@ def _diff(query):
 	_gc(that_relation, query[2])
 	return resulting_relation.name
 
+def _cross(query):
+
+	global env
+
+	if not _check_query_length(lambda a, b : a != b, query, 'cross', 3): 
+		return
+
+	this_relation, that_relation = _eval(query[1]), _eval(query[2])
+	if not _check_relation(this_relation): return
+	if not _check_relation(that_relation): return
+	this_relation, that_relation = env[this_relation], env[that_relation]
+
+	resulting_relation  = this_relation.cross(that_relation)
+	env[resulting_relation.name] = resulting_relation
+
+	_gc(this_relation, query[1])
+	_gc(that_relation, query[2])
+	return resulting_relation.name
+
 def _eval_algebra_instruction(query):
 	''' Evaluates some expression in the ALGEBRA category of evaluation,
 		that is, expressions related to the Codd's definition of relational
@@ -448,6 +534,8 @@ def _eval_algebra_instruction(query):
 						'union' : _union,
 						'inter' : _inter,
 						'diff' : _diff,
+						'cross' : _cross,
+						'set' : _set,
 				}
 
 	command = query[0]
@@ -490,7 +578,7 @@ def _eval(query):
 						['create', 'insert'],
 
 					'ALGEBRA' :
-						['project', 'select', 'union', 'inter', 'diff'],
+						['set', 'project', 'select', 'union', 'inter', 'diff', 'cross'],
 
 					}
 
@@ -510,7 +598,7 @@ def _eval(query):
 	elif type(query) == str:					# A symbol, or an atom
 		return query
 
-	elif command == 'exit':						# Exit from the Burp system
+	elif command == 'exit':						# Exit from the Coddie system
 
 		if len(query) != 1:						# Malformed exit command
 			_println('Unbound exit call')
