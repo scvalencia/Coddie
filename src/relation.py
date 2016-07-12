@@ -6,8 +6,6 @@ import datatypes
 def _callerror(error):
 	print error.replace('  ', ' ')
 
-
-
 class Tuple(object):
 
 	_ERROR01 = 'Unrecognized value %s on tuple %s'
@@ -106,18 +104,90 @@ class Relation(object):
 
 		resulting_name = self.name + '_projection_' + self._random_string()
 		resulting_type = [self.types[idx] for idx in idxs]
-		resulting = Relation(resulting_name, resulting_type, arguments)
+		resulting_relation = Relation(resulting_name, resulting_type, arguments)
 		
 		for tpl in self.tuples:
 			lst = [self.tuples[tpl][idx] for idx in idxs]
-			resulting.insert(tuple(lst))
+			resulting_relation.insert(tuple(lst))
 
-		return resulting
+		return resulting_relation
 
-	def 
+	def _attribute_equiv(self, attribute):
+		idx = self.attributes.index(attribute)
+		return str(idx)
+
+	def _attribute_value_equiv(self, attribute, value_or_attribute, iterator='tpl'):
+		isattribute = lambda x : x in self.attributes
+		attribute_equiv_template = 'self.tuples[%s].data[%s]'
+
+		attribute_equiv = attribute_equiv_template % (iterator, self._attribute_equiv(attribute))
+		value_equiv = value_or_attribute 
+
+		if datatypes.infertype(value_or_attribute) == 'STRING':
+			value_equiv = "'" + value_or_attribute + "'"
+
+		if isattribute(value_or_attribute):
+			value_equiv = attribute_equiv_template % \
+				(iterator, self._attribute_equiv(value_or_attribute))
+
+		return attribute_equiv, value_equiv
+
+	def _prefix2infix(self, expression):
+	    infix = ''
+	    operand = expression[0]
+
+	    equivalent = {'=' : '==', '<>' : '!='}
+
+	    if operand in ['and', 'or']:
+	        infix += '('
+	        for itm in expression[1:-1]:
+	            infix += self._prefix2infix(itm)
+	            infix += ' ' + operand + ' '
+	        infix += self._prefix2infix(expression[-1])
+	        infix += ')'
+
+	    if operand in ['=', '<=', '>=', '<>', '<', '>']:
+	        attribute, value_or_attribute = \
+	        	self._attribute_value_equiv(expression[1], expression[2])
+
+	        infix += '(%s %s %s)' % \
+	            (attribute, equivalent[operand] if operand in equivalent else operand, \
+	                value_or_attribute)
+
+	    if operand == 'not':
+	        attribute = expression[1]
+	        infix += '(not %s)' % attribute
+
+	    return infix
+
+	def select(self, condition):
+
+		parsed_condition = self._prefix2infix(condition)[1:-1]
+
+		resulting_name = self.name + '_selection_' + self._random_string()
+		resulting_type = self.types
+		resulting_relation = Relation(resulting_name, resulting_type, self.attributes)
+		
+		for tpl in self.tuples:
+			if eval(parsed_condition):
+				resulting_relation.insert(self.tuples[tpl].data)
+
+		return resulting_relation
 
 	def type_compatible(self, that):
 		return self.types == that.types
+
+	def normalize_attributes(self, that):
+
+		resulting_attributes = self.attributes
+
+		for attribute in that.attributes:
+			if attribute in self.attributes:
+				resulting_attributes.append(that.name + '.' + attribute)
+			else:
+				resulting_attributes.append(attribute)
+
+		return resulting_attributes
 
 	def union(self, that):
 		if not self.type_compatible(that):
@@ -167,6 +237,20 @@ class Relation(object):
 
 		for tpl in resulting_tuples: 
 			resulting_relation.insert(resulting_tuples[tpl].data)
+
+		return resulting_relation
+
+	def cross(self, that):
+		resulting_name = self.name + '_cross_' + \
+			that.name + '_' + self._random_string()
+		resulting_type = self.types + that.types
+		resulting_attributes = self.normalize_attributes(that)
+		resulting_relation = Relation(resulting_name, resulting_type, resulting_attributes)
+
+		for self_tpl in self.tuples:
+			for that_tpl in that.tuples:
+				resulting_relation.insert(self.tuples[self_tpl].data + \
+					that.tuples[that_tpl].data)
 
 		return resulting_relation
 
@@ -228,9 +312,10 @@ class Relation(object):
 
 		return latex
 
-'''
+
 r1 = Relation('employee', ['STRING', 'STRING', 'INTEGER'], ['name', 'lastname', 'salary'])
 r2 = Relation('person', ['STRING', 'STRING', 'INTEGER'], ['name', 'lastname', 'age'])
+
 r1.insert(('"Alonso"', '"Perez"', '100'))
 r1.insert(('"Rodolfo"', '"Benitez"', '50'))
 r2.insert(('"Elizabeth"', '"Baranza"', '45'))
@@ -239,6 +324,8 @@ r2.insert(('"Rodolfo"', '"Benitez"', '50'))
 t1 = Tuple(("Roberto", "Almagro"))
 t2 = Tuple(("Almagro", "Roberto"))
 t3 = Tuple(("Almagro", "Roberto"))
+
+'''
 
 
 print t1.hash
@@ -259,6 +346,7 @@ r4.display()
 r5 = r2.difference(r1)
 r5.display()
 
+'''
 graduates = Relation('graduates', ['INTEGER', 'STRING', 'INTEGER'], ['number', 'surname', 'age'])
 graduates.insert(('7274', '"Robinson"', '37'))
 graduates.insert(('7432', '"O\'Malley"', '39'))
@@ -269,6 +357,7 @@ managers.insert(('9297', '"O\'Malley"', '56'))
 managers.insert(('7432', '"O\'Malley"', '39'))
 managers.insert(('9824', '"Darkes"', '38'))
 
+'''
 union = graduates.union(managers)
 union.display()
 
