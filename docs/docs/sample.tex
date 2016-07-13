@@ -1,0 +1,106 @@
+% !TeX spellcheck = en_US
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Plantilla para un artículo en LaTeX en español.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass{article}
+
+% Esto es para poder escribir acentos directamente:
+% \usepackage[latin1]{inputenc}
+% Esto es para que el LaTeX sepa que el texto está en español:
+% \usepackage[spanish]{babel}
+
+% Paquetes de la AMS:
+\usepackage{amsmath, amsthm, amsfonts, mathtools}
+\usepackage{multicol}
+\usepackage{lscape}
+\usepackage{float}
+
+
+% De la misma forma se pueden definir comandos con argumentos. Por
+% ejemplo, aquí definimos un comando para escribir el valor absoluto
+% de algo más fácilmente.
+%--------------------------------------------------------------------------
+\newcommand{\abs}[1]{\left\vert#1\right\vert}
+
+%--------------------------------------------------------------------------
+\title{Coddie: An extended interpreter of the relational algebra.}
+\author{Sebastian Valencia}
+
+\begin{document}
+	\thispagestyle{empty}
+	
+	\begin{landscape}
+		
+		\section{Database}
+		
+		\begin{table}[!htb]
+			\caption{Some relations, a sample database: SAILORS}
+			\begin{minipage}{.5\linewidth}
+				\caption{Relation, sailors1}
+				\centering
+				\begin{tabular}{||c c c c||}
+					\hline
+					sid & sname & rating & age \\ [0.5ex]
+					\hline\hline
+					22 & "Dustin" & 7 & 45 \\
+					31 & "Lubber" & 8 & 55 \\
+					58 & "Rusty" & 10 & 35 \\ [1ex]
+					\hline
+				\end{tabular}
+			\end{minipage}%
+			\begin{minipage}{.5\linewidth}
+				\centering
+				\caption{Relation, sailors2}
+				\begin{tabular}{||c c c c||}
+					\hline
+					sid & sname & rating & age \\ [0.5ex]
+					\hline\hline
+					28 & "Yuppy" & 9 & 35 \\
+					31 & "Lubber" & 8 & 55 \\
+					44 & "Guppy" & 5 & 35 \\
+					58 & "Rusty" & 10 & 35 \\ [1ex]
+					\hline
+				\end{tabular}
+			\end{minipage} 
+			\begin{minipage}{.5\linewidth}
+				\centering
+				\caption{Instance relation of reserves}
+				\begin{tabular}{||c c c||}
+					\hline
+					sid & bid & day \\ [0.5ex]
+					\hline\hline
+					58 & 103 & "11/12/96" \\
+					22 & 101 & "10/10/96" \\ [1ex]
+					\hline
+				\end{tabular}
+			\end{minipage} 
+		\end{table}
+		
+		\section{Some queries}
+		
+		\begin{enumerate}
+			\item $\sigma_{rating\ >\ 8}\ (sailors2)$
+			
+			\begin{table}[H]
+				\begin{tabular}{||c c c c||}
+					\hline
+					sid & sname & rating & age \\ [0.5ex]
+					\hline\hline
+					28 & "Yuppy" & 9 & 35 \\
+					58 & "Rusty" & 10 & 35 \\ [1ex]
+					\hline
+				\end{tabular}
+				\label{table:relation_sailors2_selection_51vjin}
+			\end{table}
+			
+			
+		\end{enumerate}
+			
+			
+		
+	\end{landscape}
+
+\end{document}
