@@ -74,7 +74,7 @@ class Relation(object):
 	def insert(self, tpl):
 		t = Tuple(tpl)
 
-		if t.arity != self.arity:
+		if t.arity != len(self.schema):
 			_callerror(self._ERROR02 % (self.name, self.arity, t.arity))
 			return
 		if t.types != self.types:
@@ -189,7 +189,7 @@ class Relation(object):
 
 	def normalize_attributes(self, that):
 
-		resulting_attributes = self.attributes
+		resulting_attributes = [_ for _ in self.attributes]
 
 		for attribute in that.attributes:
 			if attribute in self.attributes:
@@ -251,10 +251,12 @@ class Relation(object):
 		return resulting_relation
 
 	def cross(self, that):
+
 		resulting_name = self.name + '_cross_' + \
 			that.name + '_' + self._random_string()
 		resulting_type = self.types + that.types
 		resulting_attributes = self.normalize_attributes(that)
+
 		resulting_relation = Relation(resulting_name, resulting_type, resulting_attributes)
 
 		for self_tpl in self.tuples:

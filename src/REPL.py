@@ -49,7 +49,16 @@ def _check_query_length(fncmp, query, instruction, expected):
 	return True
 
 def _check_attribute_value_type(relation, attribute, value):
+	isattribute = lambda x : x in relation.attributes
 	attribute_type = relation.types[relation.attributes.index(attribute)]
+
+	if isattribute(value):
+		value_type = relation.types[relation.attributes.index(value)]
+		if attribute_type != value_type:
+			_println(errors.ERROR_SELECT_CLAUSE_TYPE1 % (attribute, value))
+			return False
+
+		return True
 
 	if attribute_type != datatypes.infertype(value):
 		_println(errors.ERROR_SELECT_CLAUSE_TYPE1 % (attribute, value))

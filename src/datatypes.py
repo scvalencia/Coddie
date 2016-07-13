@@ -90,6 +90,10 @@ class REAL(object):
         if value != '' and '.' in value:
             slices = value.split('.')
             if len(slices) == 2:
+                if not isinstance(slices[0], int) or \
+                    not isinstance(slices[1], int):
+                    self.data = ''
+
                 if slices[0].isdigit() and slices[1].isdigit():
                     self.data = float(value)
         else:
