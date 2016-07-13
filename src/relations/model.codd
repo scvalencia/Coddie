@@ -14,7 +14,7 @@ RELATION employee {
 
 INSERT (1, "John", 100) INTO employee
 
-RELATION TuringAward {
+RELATION turingaward {
 	firstname : STRING
 	lastname : STRING
 	year : INTEGER
@@ -24,12 +24,12 @@ RELATION TuringAward {
 -- INSERT () INTO TuringAward
 -- INSERT (1, 2, 3, 4) INTO TuringAward
 
-INSERT ("Alan", "Perlis", 1966, "Compiler, construction") INTO TuringAward
-INSERT ("Alan", "Perlis", 1966, "Compiler, construction and, contributions") INTO TuringAward
+INSERT ("Alan", "Perlis", 1966, "Compiler, construction") INTO turingaward
+INSERT ("Alan", "Perlis", 1966, "Compiler, construction and, contributions") INTO turingaward
 
-INSERT ("Maurice", "Wilkes", 1967, "Computer design and APIs") INTO TuringAward
-INSERT ("Richard", "Hamming", 1968, "Numerical methods and error correcting codes") INTO TuringAward
-INSERT ("Marvin", "Minsky", 1969, "AI research") INTO TuringAward
-INSERT ("James", "Wilkinson", 1970, "Numerical analysis in computation") INTO TuringAward
-INSERT ("John", "McCarthy", 1971, "AI research and LISP") INTO TuringAward
-INSERT ("Edsger", "Dijkstra", 1972, "Development of ALGOL, and the art of programming") INTO TuringAward
+INSERT ("Maurice", "Wilkes", 1967, "Computer design and APIs") INTO turingaward
+INSERT ("Richard", "Hamming", 1968, "Numerical methods and error correcting codes") INTO turingaward
+INSERT ("Marvin", "Minsky", 1969, "AI research") INTO turingaward
+INSERT ("James", "Wilkinson", 1970, "Numerical analysis in computation") INTO turingaward
+INSERT ("John", "McCarthy", 1971, "AI research and LISP") INTO turingaward
+INSERT ("Edsger", "Dijkstra", 1972, "Development of ALGOL, and the art of programming") INTO turingaward

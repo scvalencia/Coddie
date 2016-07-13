@@ -139,9 +139,100 @@ def _gc(relation, expression):
 	if relation.name != expression: 
 		env.pop(relation.name)
 
+def _clause2latex(expression):
+	latex = ''
+	operand = expression[0]
+
+	equivalent = {
+					'<>' : '\\neq', '<=' : '\leq', 
+					'>=' : '\geq', 'and' : '\wedge', 
+					'or' : '\\vee', 'not' : '\\neq'
+				}
+
+	for _ in ['<', '>', '=']: equivalent[_] = _
+
+	if operand in ['and', 'or']:
+		latex += '('
+
+		for itm in expression[1:-1]:
+			latex += _clause2latex(itm)
+			latex += '\ ' + equivalent[operand] + '\ '
+
+		latex += _clause2latex(expression[-1])
+		latex += ')'
+
+	if operand in ['=', '<=', '>=', '<>', '<', '>']:
+	    attribute, value_or_attribute = expression[1], expression[2]
+
+	    latex += '(%s\ %s\ %s)' % \
+	    	(attribute, equivalent[operand], value_or_attribute)
+
+	if operand == 'not':
+		attribute = expression[1]
+		latex += '(%s\ %s)' % (equivalent[operand], attribute)
+
+	return latex
+
+def _query2latex(query):
+	operator = query[0]
+	set_operators = {'union' : '\cup', 'inter' : '\cap', 'diff' : '-', 'cross' :'\\times'}
+
+	if operator == 'select':
+		relation, clause = query[1], query[2]
+		return '(\sigma_{%s}\ (%s))' % \
+			(_clause2latex(clause)[1:-1], _query2latex(relation))
+
+	if operator == 'project':
+		relation, attributes = query[1], query[2]
+		return '(\Pi_{(%s)}\ (%s))' % \
+			(',\ '.join(attributes), _query2latex(relation))
+
+	if operator == 'set':
+		name, relation = query[1], query[2]
+		q2l = _query2latex(relation)[1:-1]
+		ans = '%s\ \leftarrow\ %s' % (name, q2l)
+		ans = name[0] + ans + q2l[-1]
+		return ans
+
+	if operator in set_operators.keys():
+		relation1, relation2 = query[1], query[2]
+		return '(%s\ %s\ %s)' % \
+			(_query2latex(relation1), set_operators[operator], \
+				_query2latex(relation2))
+
+	else:
+		return '%s' % query
+
 #################################################################################
 # EVALUATION OF I/O RELATED QUERIES
 #################################################################################
+
+def _query(query):
+
+	if not _check_query_length(lambda a, b : a != b, query, '', 4): 
+		_println(errors.ERROR_IMPORT_QUERY_QUOTE)
+		return
+
+	option, quote = query[1], query[2]
+
+	if quote != "'":
+		_println(errors.ERROR_IMPORT_QUERY_QUOTE)
+		return
+
+	query = query[3]
+
+	if not relation:
+		_println(errors.ERROR_EXPRESION_EVAL)
+		return
+
+	if option == '"latex"':
+		print
+		_println(_query2latex(query)[1:-1])
+		print
+
+	else:
+		_println(errors.ERROR_IMPORT_QUERY_OPT % option)
+		return
 
 def _save(query):
 	global env
@@ -276,6 +367,7 @@ def _eval_io_instruction(query):
 						'display' : _display,
 						'export' : _export,
 						'env' : _env,
+						'query' : _query,
 				}
 
 	command = query[0]
@@ -589,7 +681,7 @@ def _eval(query):
 	instructions = {
 
 					'IO' : 
-						['save', 'fetch', 'display', 'export', 'env'],
+						['save', 'fetch', 'display', 'export', 'env', 'query'],
 
 					'MODEL' : 
 						['create', 'insert'],

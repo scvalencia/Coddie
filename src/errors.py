@@ -16,7 +16,12 @@ ERROR_FETCH_FILE = ('Error while fetching relations from \'%s\'.')
 
 # Import option error
 ERROR_IMPORT_OPT = ('Error while importing relation %s. %s '
-	'is not a correnct format.')
+	'is not a correct format.')
+
+ERROR_IMPORT_QUERY_OPT = ('Error while importing query. %s '
+	'is not a correct format.')
+
+ERROR_IMPORT_QUERY_QUOTE = ('Error while importing query. A quote, must be given as third parameter.')
 
 ERROR_CREATE_TYPE = ('Error while creating relation %s : %s is not a valid type.')
 
