@@ -107,6 +107,52 @@ EXAMPLES:
 
 (env)
 
+;; quote
+
+EXAMPLE:
+
+	(query "latex" '(select 
+		turingaward 
+		(and 
+			(= firstname "Pepito") 
+			(<= year 45) 
+			(or 
+				(= motivation "muslim") 
+				(<> lastname "Knuth")
+			))))
+
+	(query "latex" '(project (select 
+		turingaward 
+		(and 
+			(= firstname "Pepito") 
+			(<= year 45) 
+			(or 
+				(= motivation "muslim") 
+				(<> lastname "Knuth")
+			))) (firstname motivation year)))
+
+	(query "latex" '(set origami (select 
+		turingaward 
+		(and 
+			(= firstname "Pepito") 
+			(<= year 45) 
+			(or 
+				(= motivation "muslim") 
+				(<> lastname "Knuth")
+			)))))
+
+	(query "latex" '(project 
+					(select 
+						(cross cutomer account) 
+						(= customer.sin account.sin)) 
+					(name customer account.number)))
+
+	(query "latex" '(project 
+					(select 
+						(cross (union cutomer customer) account) 
+						(= customer.sin account.sin)) 
+					(name customer account.number)))
+
 ;; end REPL execution
 
 (exit)
