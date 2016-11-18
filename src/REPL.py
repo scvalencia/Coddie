@@ -247,7 +247,7 @@ def _save(query):
 			relation = _eval(relation)
 			if not _check_relation(relation): return
 			relation = env[relation]
-			ans += relation.save()
+			ans += relation.save() + '\n'
 
 	else:
 		if tosave == '*':
@@ -713,8 +713,12 @@ def _eval(query):
 			_println('Unbound exit call')
 			return
 
-		_println('\n' + info.EXIT_MESSAGE )
+		_println('\n' + info.EXIT_MESSAGE)
 		exit()
+
+	else:										# The operator or command does not exists
+	
+		_println('\n' + errors.ERROR_UNRECOGNIZED_OPERATOR % command)
 
 #################################################################################
 # REPL RELATED FUNCTIONS
