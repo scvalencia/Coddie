@@ -55,3 +55,5 @@ ERROR_SELECT_CLAUSE_TYPE2 = ('Error while selecting the relation. The given attr
 
 ERROR_MALFORMED_CONDITION = ('Error while parsing the given condition. '
 	'%s, does not form a valid clause.')
+
+ERROR_UNRECOGNIZED_OPERATOR = 'Unrecognized operator or command: %s'
