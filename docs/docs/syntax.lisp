@@ -124,10 +124,10 @@ EXAMPLE:
 	(query "latex" '(project (select 
 		turingaward 
 		(and 
-			(= firstname "Pepito") 
+			(= firstname "Donald") 
 			(<= year 45) 
 			(or 
-				(= motivation "muslim") 
+				(= motivation "Compilers") 
 				(<> lastname "Knuth")
 			))) (firstname motivation year)))
 
