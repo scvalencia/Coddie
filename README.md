@@ -40,7 +40,7 @@ python src/REPL.py
 ```
 ### Coddie as Language for Data Modelling
 
-Coddie is the combination of two very different parts, the first one, is the REPL, that provides an interface for interaction with the user; it offers a bridge between the relations, and the queries by the user. The second part, is the data modelling part, which allows definition of data, not the structure and contents of relations, the former, can be done in the REPL, and in coddie files. Here is a description of both.
+Coddie is the combination of two very different parts, the first one, is the REPL, that provides an interface for interaction with the user; it offers a bridge between relations, and queries by the user. The second part is the data modelling part, which allows definition of data, not the structure and contents of relations. The former can be done in the REPL and in Coddie files. Here is a description of both.
 
 **Coddie REPL:**
 
@@ -61,7 +61,7 @@ $ unix_workstation python Coddie/REPL.py
 
 ```
 
-Once the REPL is ready, it's possible to begin playing with the interactive relational algebra interpreter. The most basic operations to perform, is to load a model that's properly described in a `codd` file. A file of this kind, has the description (mandatory) and the content (optional) of each relation. The description have both the attributes of a relation and its datatypes. The following file `model.codd`, describes two relations and the way to define them and populate them if needed. `codd` files, at the moment, are the only way to persist a querying session with the interpreter.
+Once the REPL is ready, it's possible to begin playing with the interactive relational algebra interpreter. The most basic operations to perform is to load a model that's described in a `codd` file. A file of this kind has the description (mandatory) and the content (optional) of each relation. The description has both the attributes of a relation and its datatypes. The following file `model.codd`, describes two relations and the way to define and populate them. `codd` files, at the moment, are the only way to persist a session with the interpreter.
 
 ```sql
 RELATION employee {
@@ -93,7 +93,7 @@ INSERT ("John", "McCarthy", 1971, "AI research and LISP") INTO turingaward
 INSERT ("Edsger", "Dijkstra", 1972, "Development of ALGOL, and the art of programming") INTO turingaward
 ```
 
-This `codd` file, defines a relation called `employee` (relations should be named in lowercase letters), whose attributes are `nr`, `name`, `salary`, with types `INTEGER`, `STRING`, `INTEGER` each. the attributes must be in lowercase letters, while the types must be written in uppercase letter. The command `INSERT (1, "John", 100) INTO employee`, inserts the given tuple to the specific relation. Any mismatch of the arity of syntax violation, will be reported by the REPL.
+This `codd` file, defines a relation called `employee` (relations should be named in lowercase letters), whose attributes are `nr`, `name`, `salary`, with types `INTEGER`, `STRING`, `INTEGER` each. The attributes must be lowercase letters, while the types must be written in uppercase letters. The command `INSERT (1, "John", 100) INTO employee`, inserts the given tuple to the specific relation. Any mismatch of the arity or syntax violation will be reported by the REPL.
 
 The way to load relations defined in `codd` files to the environment, and the response of the REPL is:
 
@@ -104,7 +104,7 @@ Loaded relation: employee
 Loaded relation: turingaward
 ```
 
-Now, the environment contains both relations. The command `env`, serves as a way to visualise the current collection of relations that can be queried.
+Now the environment contains both relations. The command `env` serves as a way to visualise the current collection of relations that can be queried.
 
 ```
 >>> (env)
@@ -113,7 +113,7 @@ employee(nr:integer, name:string, salary:integer)
 turingaward(firstname:string, lastname:string, year:integer, motivation:string)
 ```
 
-In order to display the current state of a relation within the environment, there exist the `display` command, that receives an expression that evaluates to a relation (the name of a relation, or a pure query that itself evaluates to a relation).
+In order to display the current state of a relation within the environment, there exists the `display` command, that receives an expression that evaluates to a relation (the name of a relation, or a query that itself evaluates to a relation).
 
 ```
 >>> (display employee)
@@ -125,7 +125,7 @@ In order to display the current state of a relation within the environment, ther
 +------+--------+----------+
 ```
 
-Tuple insertion to an specific relation, is done by using the `insert` command, which takes an expression that evaluates to a relation, and a tuple. For successful operation, it's needed the types to be the correct ones, and the first argument must evaluate to a relation.
+Tuple insertion to a specific relation is done by using the `insert` command, which takes an expression that evaluates to a relation, and a tuple. For successful operation, the types need to be the correct ones, and the first argument must evaluate to a relation.
 
 ```
 >>> (insert employee (2 "Hillary" 100))
@@ -140,7 +140,7 @@ Tuple insertion to an specific relation, is done by using the `insert` command, 
 +------+-----------+----------+
 ```
 
-Besides of applying the `fetch` operation on the correct arguments, a relation can be created directly (without the use of relational operators). The `create` command, takes as argument a name denoting the name of the new relation, a tuple of types, and a tuple of named attributes. It adds to the environment the created relation. The `create` command, evaluates itself to the created relation, so is possible to use it in a nested query.
+Besides applying the `fetch` operation on the correct arguments, a relation can be created directly (without the use of relational operators). The `create` command, takes as arguments a name denoting the name of the new relation, a tuple of types, and a tuple of named attributes. It adds the created relation to the environment. The `create` command itself evaluates to the created relation, so is possible to use it in a nested query.
 
 ```
 >>> (insert            
@@ -159,15 +159,15 @@ rel(name:string, year:integer)
 +-------------------+--------+
 ```
 
-To persist a session in Coddie, we do need to save the current state of the environment in a `codd` file, this is done via the `save` command, which could receive: 
+To persist a session in Coddie, we need to save the current state of the environment in a `codd` file. This is done via the `save` command, which can accept: 
 
 * An asterisk, denoting that every relation within the environment must be persist.
 * A list of strings, that maps to relations within the environment.
 * A single string that maps to a relation in the environment.
 
-Additionally, the second argument of the command, must be the path and the name of the `codd` file.
+Additionally, the second argument of the command must be the path and the name of the `codd` file.
 
-Every operation here, writes a `codd` file that contains the definition of the relation and `INSERT` commands telling the tuples of the relation. If you save a "session", you can retake it latter by using the `fetch` command on the saved file.
+Every operation here writes a `codd` file that contains the definition of the relation and `INSERT` commands with the tuples of the relation. If you save a session, you can resume it later by using the `fetch` command on the saved file.
 
 ```
 >>> (create student (STRING STRING STRING REAL) (name lastname program gpa))
@@ -202,7 +202,7 @@ INSERT ("Carlos", "Puerto", "Finances", 3.78) INTO student
 
 Are also valid `save` commands.
 
-Relational algebra operators in Coddie, must satisfy the same constraint as defined by Codd as union-compatibility for those operators that actually require it. 
+Relational algebra operators in Coddie must satisfy the same constraint defined by Codd as union-compatibility for those operators that actually require it. 
 
 * `project` operator
 
@@ -212,7 +212,7 @@ The `project` operator takes an expression that evaluates to a relation and a li
 (project students (name gpa))
 ```
 
-This query, does evaluates to a relation, but does not print it. It stores the new relation to the environment, to print it, you need to write a nested query with display, or rename the relation (`set` operator).
+This query evaluates to a relation, but does not print it. It stores the new relation to the environment. To print it, you need to write a nested query with display, or rename the relation (`set` operator).
 
 The following session illustrates the `project` operator.
 
@@ -244,9 +244,9 @@ turingaward(firstname:string, lastname:string, year:integer, motivation:string)
 employee_projection_Q2AQRV(nr:integer, name:string)
 ```
 
-As you can see here, typing a query does not print anything at all, it just adds the created relation to the environment. If the query is inside another query, it does not creates a relation per nested query in the environment; as an example of that, the second `project` command used on the `display` operator does not stores the result relation in the environment.
+As you can see here, typing a query does not print anything at all, it just adds the created relation to the environment. If the query is inside another query, it does not create a relation per nested query in the environment; as an example of that, the second `project` command used on the `display` operator does not store the result relation in the environment.
 
-Another set of relational operator supported at the moment by Coodie, is `union`, `diff`, and `inter`. The application of this operators, must be on relations that are union-compatible, otherwise, Coddie will report an error. The following session illustrates the proper usage of those operators.
+Another set of relational operators supported by Coodie, are `union`, `diff`, and `inter`. The application of these operators, must be on relations that are union-compatible, otherwise, Coddie will report an error. The following session illustrates the proper usage of those operators.
 
 ```
 >>> (insert employee (2 "Peter" 200))
@@ -342,7 +342,7 @@ Another set of relational operator supported at the moment by Coodie, is `union`
 
 ```
 
-The last relational operator supported at the moment, is `select`, which filters a relation according on a given predicate that operates over the attributes of the given relation, if selects from the relation the tuples that satisfy the predicate. It can be used in nested queries, since it evaluates itself to a relation. This example, uses that same relations as defined before (`managers` and `employees`).
+The last relational operator supported is `select`, which filters a relation according to a given predicate that operates over the attributes of the given relation. It selects tuples from the relation that satisfy the predicate. It can be used in nested queries, since it evaluates to a relation itself. This example uses the same relations defined before (`managers` and `employees`).
 
 ```
 >>> (display (select manager (= name "Diane")))
@@ -382,7 +382,7 @@ The last relational operator supported at the moment, is `select`, which filters
 +-------------+------------+--------+---------------------------------------------+
 ```
 
-The name that results from the evaluation of a query, is for internal usage, you can rename relations using the `set` operator.
+The name that results from the evaluation of a query is for internal usage; you can rename relations using the `set` operator.
 
 ```
 >>> (fetch "relations/model.codd")
@@ -471,7 +471,7 @@ That looks like this:
 
 ![alt tag](docs/docs/img/export_table2.png)
 
-The command `query`, take as argument a quoted pure relational algebra query, and output a LaTeX expression that when compiled looks as the query in the syntax proposed by Codd.
+The command `query`, take as argument a quoted pure relational algebra query, and output a LaTeX expression that when compiled looks like the query in the syntax proposed by Codd.
 
 ```
 >>> (query "latex" '(project (select 
@@ -512,7 +512,7 @@ Produces:
 
 ![alt tag](docs/docs/img/latex_query2.png)
 
-The `query` command does not evaluates the given query.
+The `query` command does not evaluate the given query.
 
 To exit the REPL, just type `(exit)`
 
@@ -520,7 +520,7 @@ ___
 
 #### Concept
 
-Coddie was designed and developed with the idea to provide a tool for students and learners to learn relational algebra using an interactive environment. It was also conceived as a tool to test queries, and visualize their outputs, that's the reason why Coddie supports the `export`, and `query` commands.
+Coddie was designed and developed with the idea to provide a tool for students and learners to learn relational algebra using an interactive environment. It was also conceived as a tool to test queries, and visualize their outputs; that's the reason why Coddie supports the `export`, and `query` commands.
 
 #### Built With
 
